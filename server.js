@@ -8,7 +8,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: "*", // Allow all origins for development
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
@@ -48,36 +48,27 @@ app.post("/login", async (req, res) => {
       return res.status(400).json({ success: false, message: "Email немесе құпия сөз қате" });
     }
 
-    // Тексеру: Бұл админ бе? 
-    // Төмендегі email-ді өзіңіздің базадағы админ email-іне ауыстырыңыз
-    const isAdmin = (email === "kuatkyzyaizada@gmail.com"); 
+    const isAdmin = (email === "kuatkyzyaizada@gmail.com");
 
     res.json({
       success: true,
-      token: "mock-token-" + user._id, // Нақты жобада JWT қолданған дұрыс
+      token: "mock-token-" + user._id,
       user: {
         id: user._id,
         name: user.name,
-        isAdmin: isAdmin // Админ екенін фронтендке айтамыз
+        isAdmin: isAdmin
       }
     });
   } catch (err) {
+    console.error("Login error:", err);
     res.status(500).json({ success: false, message: "Серверде қате болды" });
   }
 });
 
-// Test route
 app.get("/", (req, res) => {
   res.json({ message: "Server is running!" });
 });
 
-// Use port 3001 instead of 5000
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
-
-// Get user profile
 app.get("/user/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
@@ -90,7 +81,6 @@ app.get("/user/:id", async (req, res) => {
   }
 });
 
-// Save test results
 app.post("/save-test", async (req, res) => {
   try {
     const { userId, toqsan, testName, score, totalQuestions } = req.body;
@@ -113,7 +103,6 @@ app.post("/save-test", async (req, res) => {
   }
 });
 
-// Get user progress
 app.get("/user-progress/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -125,7 +114,6 @@ app.get("/user-progress/:id", async (req, res) => {
       byToqsan: {}
     };
     
-    // Calculate progress by тоқсан
     for (let i = 1; i <= 4; i++) {
       const toqsanTests = user.testResults.filter(t => t.toqsan === i);
       progress.byToqsan[i] = {
@@ -135,7 +123,6 @@ app.get("/user-progress/:id", async (req, res) => {
       };
     }
     
-    // Calculate overall average
     const allScores = user.testResults.map(t => (t.score / t.totalQuestions * 100));
     progress.averageScore = allScores.length > 0 ? 
       allScores.reduce((sum, score) => sum + score, 0) / allScores.length : 0;
@@ -147,19 +134,16 @@ app.get("/user-progress/:id", async (req, res) => {
   }
 });
 
-// Барлық пайдаланушылар мен олардың нәтижелерін алу
 app.get('/admin/all-results', async (req, res) => {
     try {
-        // Мұнда User - бұл сіздің MongoDB-дегі модель атыңыз
-        // Барлық пайдаланушыларды тауып, олардың нәтижелерін қайтарамыз
         const users = await User.find({}, 'name email testResults');
         res.json(users);
     } catch (error) {
+        console.error("Admin all-results error:", error);
         res.status(500).json({ message: "Деректерді алу мүмкін болмады" });
     }
 });
 
-// Get user progress by modules
 app.get("/user-progress-modules/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -172,14 +156,12 @@ app.get("/user-progress-modules/:id", async (req, res) => {
       "elektromagnetizm": { name: "Электромагнетизм", tests: [], averageScore: 0 }
     };
 
-    // Group tests by module
     user.testResults.forEach(test => {
       if (test.module && modules[test.module]) {
         modules[test.module].tests.push(test);
       }
     });
 
-    // Calculate averages
     Object.keys(modules).forEach(moduleKey => {
       const module = modules[moduleKey];
       if (module.tests.length > 0) {
@@ -197,4 +179,10 @@ app.get("/user-progress-modules/:id", async (req, res) => {
     console.error("Module progress fetch error:", err);
     res.status(500).json({ message: "Қате болды" });
   }
+});
+
+// ИСПРАВЛЕНО: Порт берем из переменной окружения Render
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
