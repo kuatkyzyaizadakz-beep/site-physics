@@ -14,8 +14,32 @@ app.use(cors({
 }));
 
 // MongoDB connection
-mongoose.connect("mongodb+srv://kuatkyzyaizada1:Aizada2604@cluster0.qaicgp2.mongodb.net/?appName=Cluster0")
-  .then(() => console.log("MongoDB connected successfully"))
+mongoose.connect("mongodb+srv://kuatkyzyaizada1:Aizada2604@cluster0.qaicgp2.mongodb.net/site-physics?retryWrites=true&w=majority")
+  .then(async () => {
+    console.log("MongoDB connected successfully");
+    
+    // ============ АДМИНДІ АВТОМАТТЫ ТҮРДЕ ҚОСУ ============
+    try {
+      const adminExists = await User.findOne({ email: "kuatkyzyaizada1@gmail.com" });
+      
+      if (!adminExists) {
+        await User.create({
+          name: "Администратор",
+          email: "kuatkyzyaizada1@gmail.com",
+          password: "admin123",
+          isAdmin: true,
+          testResults: []
+        });
+        console.log("✅ Админ аккаунты автоматты түрде қосылды!");
+      } else {
+        console.log("✅ Админ аккаунты бұрыннан бар");
+      }
+    } catch (err) {
+      console.log("Админ тексеру кезінде қате:", err.message);
+    }
+    // ============ АДМИН ҚОСУ СОҢЫ ============
+    
+  })
   .catch(err => console.log("MongoDB connection error:", err));
 
 // Routes
@@ -30,7 +54,7 @@ app.post("/register", async (req, res) => {
     const exist = await User.findOne({ email });
     if (exist) return res.status(400).json({ message: "Бұл email бұрын қолданылған" });
 
-    await User.create({ name, email, password });
+    await User.create({ name, email, password, testResults: [] });
 
     res.json({ message: "Сәтті тіркелдіңіз!" });
   } catch (err) {
@@ -48,7 +72,8 @@ app.post("/login", async (req, res) => {
       return res.status(400).json({ success: false, message: "Email немесе құпия сөз қате" });
     }
 
-    const isAdmin = (email === "kuatkyzyaizada@gmail.com");
+    // isAdmin: базадан немесе email бойынша тексеру
+    const isAdmin = user.isAdmin === true || email === "kuatkyzyaizada1@gmail.com";
 
     res.json({
       success: true,
@@ -56,6 +81,7 @@ app.post("/login", async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
+        email: user.email,
         isAdmin: isAdmin
       }
     });
@@ -181,7 +207,7 @@ app.get("/user-progress-modules/:id", async (req, res) => {
   }
 });
 
-// ИСПРАВЛЕНО: Порт берем из переменной окружения Render
+// Серверді қосу
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
