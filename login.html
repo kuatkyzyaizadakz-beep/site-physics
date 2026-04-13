@@ -168,6 +168,15 @@
             text-align: center;
             margin-top: 15px;
         }
+        
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 15px;
+        }
 
         @media (max-width: 600px) {
             .header {
@@ -225,35 +234,12 @@
     </main>
 
     <script>
-        // АДМИННЫҢ EMAIL ЖӘНЕ ПАРОЛІ
+        // ============ БЭКЕНД КОНФИГУРАЦИЯСЫ ============
+        const API_URL = "https://site-physics.onrender.com";
         const ADMIN_EMAIL = "kuatkyzyaizada1@gmail.com";
-        const ADMIN_PASSWORD = "admin123";
         
-        // Пайдаланушыларды алу (егер админ жоқ болса, автоматты түрде қосу)
-        function initializeUsers() {
-            let users = JSON.parse(localStorage.getItem('users') || '[]');
-            
-            const adminExists = users.find(u => u.email === ADMIN_EMAIL);
-            
-            if (!adminExists) {
-                const adminUser = {
-                    name: "Администратор",
-                    email: ADMIN_EMAIL,
-                    password: ADMIN_PASSWORD,
-                    memberSince: new Date().toLocaleDateString('kk-KZ'),
-                    tests: [],
-                    isAdmin: true
-                };
-                users.push(adminUser);
-                localStorage.setItem('users', JSON.stringify(users));
-                console.log("✅ Админ аккаунты автоматты түрде қосылды!");
-            }
-            
-            return users;
-        }
-        
-        // Кіру функциясы
-        function handleLogin(event) {
+        // ============ Кіру функциясы (бэкендпен жұмыс) ============
+        async function handleLogin(event) {
             event.preventDefault();
             
             const email = document.getElementById('email').value.trim();
@@ -261,37 +247,61 @@
             const loginBtn = document.getElementById('loginBtn');
             const msgDiv = document.getElementById('message');
             
+            // Валидация
             if (!email || !password) {
                 msgDiv.innerHTML = '<div class="error-message">⚠️ Email және құпия сөзді толтырыңыз!</div>';
                 return;
             }
             
-            const users = initializeUsers();
-            const user = users.find(u => u.email === email && u.password === password);
+            // Кнопканы өшіріп, жүктеу режиміне қою
+            loginBtn.disabled = true;
+            loginBtn.textContent = '⏳ Кіру...';
+            msgDiv.innerHTML = '';
             
-            if (!user) {
-                msgDiv.innerHTML = '<div class="error-message">❌ Email немесе құпия сөз дұрыс емес!</div>';
-            } else {
-                if (!user.tests) user.tests = [];
-                localStorage.setItem('currentUser', JSON.stringify(user));
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
                 
-                msgDiv.innerHTML = '<div style="color: green; background: #e8f5e9; padding: 12px; border-radius: 12px;">✅ Сәтті кірдіңіз! Бағытталуда...</div>';
+                const data = await response.json();
                 
-                setTimeout(() => {
-                    // Егер АДМИН болса -> admin.html, әйтпесе -> dashboard.html
-                    if (email === ADMIN_EMAIL) {
-                        window.location.href = 'admin.html';
-                    } else {
-                        window.location.href = 'dashboard.html';
-                    }
-                }, 1000);
+                if (data.success) {
+                    // Жүйеге кірген пайдаланушыны localStorage-ге сақтау
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        id: data.user.id,
+                        name: data.user.name,
+                        email: email,
+                        isAdmin: data.user.isAdmin
+                    }));
+                    
+                    msgDiv.innerHTML = '<div class="success-message">✅ Сәтті кірдіңіз! Бағытталуда...</div>';
+                    
+                    setTimeout(() => {
+                        if (data.user.isAdmin) {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
+                    }, 1000);
+                } else {
+                    msgDiv.innerHTML = `<div class="error-message">❌ ${data.message || 'Email немесе құпия сөз дұрыс емес!'}</div>`;
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Кіру';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                msgDiv.innerHTML = '<div class="error-message">❌ Серверге қосылу мүмкін болмады. Бэкенд жұмыс істеп тұрғанын тексеріңіз.</div>';
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Кіру';
             }
         }
         
-        // Бет жүктелгенде, егер пайдаланушы кіріп тұрса
+        // ============ Бет жүктелгенде, егер пайдаланушы кіріп тұрса ============
         window.addEventListener('DOMContentLoaded', () => {
-            initializeUsers();
-            
             const currentUser = localStorage.getItem('currentUser');
             if (currentUser) {
                 try {
@@ -303,10 +313,12 @@
                     }
                 } catch(e) {
                     console.error('Қате:', e);
+                    localStorage.removeItem('currentUser');
                 }
             }
         });
         
+        // Форма жіберілгенде
         document.getElementById('loginForm').addEventListener('submit', handleLogin);
     </script>
 </body>
