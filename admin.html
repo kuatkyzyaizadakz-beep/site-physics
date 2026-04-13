@@ -209,6 +209,22 @@
             color: #888;
         }
 
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #1E90FF;
+            font-size: 1.1rem;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #822727;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -262,88 +278,179 @@
             <h2>📋 Оқушылардың тест нәтижелері</h2>
             <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Оқушы аты немесе email бойынша іздеу...">
             <div class="table-container">
-                <table>
+                <div id="loadingMessage" class="loading">⏳ Жүктелуде...</div>
+                <table id="resultsTable" style="display: none;">
                     <thead>
-                        <tr><th>Оқушы</th><th>Email</th><th>Тест атауы</th><th>Нәтиже</th><th>Күні</th></tr>
+                        <tr>
+                            <th>Оқушы</th>
+                            <th>Email</th>
+                            <th>Тест атауы</th>
+                            <th>Нәтиже</th>
+                            <th>Күні</th>
+                        </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <tr><td colspan="5" class="no-data">Жүктелуде...</td></tr>
                     </tbody>
                 </table>
+                <div id="errorMessage" style="display: none;" class="error-message"></div>
             </div>
         </div>
     </main>
 
     <script>
+        // ============ КОНФИГУРАЦИЯ ============
         const ADMIN_EMAIL = "kuatkyzyaizada1@gmail.com";
+        const API_URL = "https://site-physics.onrender.com";
 
-        function getAllUsers() {
-            return JSON.parse(localStorage.getItem('users') || '[]');
+        // ============ КӨМЕКШІ ФУНКЦИЯЛАР ============
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
+        // ============ АДМИН РҰҚСАТЫН ТЕКСЕРУ ============
         function checkAdminAccess() {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+            try {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (e) {
                 window.location.href = 'dashboard.html';
             }
         }
 
-        function calculateStats() {
-            const users = getAllUsers();
-            const students = users.filter(u => u.email !== ADMIN_EMAIL);
-            let totalTests = 0, totalScore = 0, totalQuestions = 0;
-
-            students.forEach(user => {
-                if (user.tests) {
-                    totalTests += user.tests.length;
-                    user.tests.forEach(t => {
-                        totalScore += t.score;
-                        totalQuestions += t.totalQuestions;
-                    });
+        // ============ БЭКЕНДЕН ДЕРЕКТЕРДІ АЛУ ============
+        async function fetchAllResults() {
+            try {
+                const response = await fetch(`${API_URL}/admin/all-results`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-            });
-
-            document.getElementById('totalStudents').textContent = students.length;
-            document.getElementById('totalTests').textContent = totalTests;
-            document.getElementById('avgScore').textContent = totalQuestions > 0 ? (totalScore / totalQuestions * 100).toFixed(1) + '%' : '0%';
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('API қатесі:', error);
+                throw new Error('Серверге қосылу мүмкін болмады. Бэкенд жұмыс істеп тұрғанын тексеріңіз.');
+            }
         }
 
-        function renderTable() {
-            const users = getAllUsers();
-            const students = users.filter(u => u.email !== ADMIN_EMAIL);
-            const tbody = document.getElementById('tableBody');
-            
-            let html = '';
-            students.forEach(user => {
-                if (user.tests && user.tests.length > 0) {
-                    user.tests.forEach(test => {
-                        const percent = (test.score / test.totalQuestions) * 100;
-                        let badge = 'badge-low';
-                        if (percent >= 80) badge = 'badge-high';
-                        else if (percent >= 50) badge = 'badge-mid';
-                        
-                        html += `<tr>
-                            <td><strong>${user.name}</strong></td>
-                            <td>${user.email}</td>
-                            <td>${test.testTitle}</td>
-                            <td><span class="badge ${badge}">${test.score}/${test.totalQuestions} (${percent.toFixed(0)}%)</span></td>
-                            <td>${test.date || 'Белгісіз'}</td>
-                        </tr>`;
-                    });
-                }
-            });
-            
-            tbody.innerHTML = html || '<tr><td colspan="5" class="no-data">📭 Әлі тест нәтижелері жоқ</td></tr>';
+        // ============ СТАТИСТИКАНЫ ЕСЕПТЕУ ============
+        async function calculateStats() {
+            try {
+                const users = await fetchAllResults();
+                const students = users.filter(u => u.email !== ADMIN_EMAIL);
+                
+                let totalTests = 0;
+                let totalScore = 0;
+                let totalQuestions = 0;
+
+                students.forEach(user => {
+                    if (user.testResults && user.testResults.length > 0) {
+                        totalTests += user.testResults.length;
+                        user.testResults.forEach(t => {
+                            totalScore += (t.score || 0);
+                            totalQuestions += (t.totalQuestions || 0);
+                        });
+                    }
+                });
+
+                document.getElementById('totalStudents').textContent = students.length;
+                document.getElementById('totalTests').textContent = totalTests;
+                
+                const avgPercent = totalQuestions > 0 
+                    ? ((totalScore / totalQuestions) * 100).toFixed(1)
+                    : '0';
+                document.getElementById('avgScore').textContent = avgPercent + '%';
+                
+                return { students, totalTests, avgPercent };
+            } catch (error) {
+                console.error('Статистика қатесі:', error);
+                document.getElementById('totalStudents').textContent = '?';
+                document.getElementById('totalTests').textContent = '?';
+                document.getElementById('avgScore').textContent = '?%';
+                throw error;
+            }
         }
 
+        // ============ КЕСТЕНІ ТОЛТЫРУ ============
+        async function renderTable() {
+            try {
+                const users = await fetchAllResults();
+                const students = users.filter(u => u.email !== ADMIN_EMAIL);
+                const tbody = document.getElementById('tableBody');
+                
+                let html = '';
+                
+                for (const user of students) {
+                    if (user.testResults && user.testResults.length > 0) {
+                        for (const test of user.testResults) {
+                            const score = test.score || 0;
+                            const total = test.totalQuestions || 1;
+                            const percent = (score / total) * 100;
+                            
+                            let badgeClass = 'badge-low';
+                            if (percent >= 80) badgeClass = 'badge-high';
+                            else if (percent >= 50) badgeClass = 'badge-mid';
+                            
+                            const testName = test.testName || test.testTitle || 'Тест';
+                            const date = test.date 
+                                ? new Date(test.date).toLocaleDateString('kz-KZ') 
+                                : 'Белгісіз';
+                            
+                            html += `
+                                <tr>
+                                    <td><strong>${escapeHtml(user.name)}</strong></td>
+                                    <td>${escapeHtml(user.email)}</td>
+                                    <td>${escapeHtml(testName)}</td>
+                                    <td><span class="badge ${badgeClass}">${score}/${total} (${percent.toFixed(0)}%)</span></td>
+                                    <td>${date}</td>
+                                </tr>
+                            `;
+                        }
+                    } else {
+                        // Тест тапсырмаған оқушылар
+                        html += `
+                            <tr style="opacity: 0.7;">
+                                <td><strong>${escapeHtml(user.name)}</strong></td>
+                                <td>${escapeHtml(user.email)}</td>
+                                <td colspan="3" style="color:#999;">📭 Әлі тест тапсырған жоқ</td>
+                            </tr>
+                        `;
+                    }
+                }
+                
+                if (html === '') {
+                    tbody.innerHTML = '<tr><td colspan="5" class="no-data">📭 Әлі тест нәтижелері жоқ</td></tr>';
+                } else {
+                    tbody.innerHTML = html;
+                }
+                
+                return students.length;
+            } catch (error) {
+                console.error('Кесте қатесі:', error);
+                throw error;
+            }
+        }
+
+        // ============ ІЗДЕУ ФИЛЬТРІ ============
         function filterTable() {
             const filter = document.getElementById('searchInput').value.toLowerCase();
             const rows = document.querySelectorAll('#tableBody tr');
             rows.forEach(row => {
-                row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
             });
         }
 
+        // ============ ШЫҒУ ============
         function logout() {
             if (confirm('Шыққыңыз келе ме?')) {
                 localStorage.removeItem('currentUser');
@@ -351,10 +458,40 @@
             }
         }
 
+        // ============ БАСТЫ ФУНКЦИЯ ============
+        async function initAdminPanel() {
+            // Жүктеу индикаторын көрсету
+            const loadingDiv = document.getElementById('loadingMessage');
+            const table = document.getElementById('resultsTable');
+            const errorDiv = document.getElementById('errorMessage');
+            
+            loadingDiv.style.display = 'block';
+            table.style.display = 'none';
+            errorDiv.style.display = 'none';
+            
+            try {
+                // Статистиканы есептеу
+                await calculateStats();
+                
+                // Кестені толтыру
+                await renderTable();
+                
+                // Кестені көрсету
+                loadingDiv.style.display = 'none';
+                table.style.display = 'table';
+                
+            } catch (error) {
+                console.error('Инициализация қатесі:', error);
+                loadingDiv.style.display = 'none';
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = '❌ ' + error.message + ' Бэкенд серверінің жұмыс істеп тұрғанын тексеріңіз: ' + API_URL;
+            }
+        }
+
+        // ============ БЕТ ЖҮКТЕЛГЕНДЕ ============
         window.addEventListener('DOMContentLoaded', () => {
             checkAdminAccess();
-            calculateStats();
-            renderTable();
+            initAdminPanel();
             document.getElementById('searchInput').addEventListener('keyup', filterTable);
         });
     </script>
