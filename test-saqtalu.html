@@ -15,7 +15,6 @@
       padding: 20px;
     }
 
-    /* Header стильдері - user.html-ға ұқсас */
     .header {
       background: white;
       padding: 15px 30px;
@@ -51,7 +50,6 @@
       transform: translateY(-2px);
     }
 
-    /* Тест контейнері */
     .test-container {
       max-width: 900px;
       margin: 0 auto;
@@ -77,7 +75,6 @@
       font-size: 1rem;
     }
 
-    /* Карточка стилі - user.html-ға ұқсас */
     .question-card {
       background: white;
       border-radius: 16px;
@@ -137,7 +134,6 @@
       color: white;
     }
 
-    /* Батырмалар */
     .submit-btn {
       width: 100%;
       padding: 16px;
@@ -171,7 +167,6 @@
       flex-wrap: wrap;
     }
 
-    /* Модалдық терезе */
     .result-modal {
       display: none;
       position: fixed;
@@ -250,7 +245,6 @@
       background: #0066cc;
     }
 
-    /* Прогресс индикаторы */
     .progress-info {
       background: white;
       border-radius: 16px;
@@ -258,11 +252,6 @@
       margin-bottom: 20px;
       text-align: center;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-
-    .progress-info span {
-      color: #1E90FF;
-      font-weight: bold;
     }
 
     @media (max-width: 768px) {
@@ -285,7 +274,7 @@
 
   <div class="test-container">
     <div class="test-header">
-      <h1>📚 Кинематика тесті - 1 тоқсан</h1>
+      <h1>📚 Сақталу заңдары - 3 тоқсан</h1>
       <p>10 сұрақ | Уақыт: 20 минут</p>
     </div>
 
@@ -452,6 +441,11 @@
   </div>
 
   <script>
+    // ============== КОНФИГУРАЦИЯ ==============
+    const API_URL = "https://site-physics.onrender.com";
+    const TOQSAN = 3;  // 3-тоқсан
+    const TEST_NAME = "Сақталу заңдары";
+
     // ============== ДҰРЫС ЖАУАПТАР ==============
     const correctAnswers = {
       q1: "A",
@@ -481,71 +475,48 @@
       return true;
     }
 
-    // ============== LOCALSTORAGE-ҒА САҚТАУ ==============
- function saveToLocalStorage(score, totalQuestions) {
-    const testTitle = document.title || "Тест нәтижесі";
-    
-    let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    
-    if (!currentUser) {
+    // ============== БЭКЕНДКЕ САҚТАУ (MongoDB) ==============
+    async function saveToBackend(score, totalQuestions) {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      
+      if (!currentUser || !currentUser.id) {
         alert('Пайдаланушы кірмеген! Қайта кіріңіз.');
         window.location.href = 'login.html';
         return false;
-    }
-    
-    if (!currentUser.tests) currentUser.tests = [];
-    
-    // Есептеу - МЫНА ЖОЛДЫ ТЕКСЕРІҢІЗ
-    const percentValue = (score / totalQuestions) * 100;
-    
-    currentUser.tests.push({
-        testTitle: testTitle,
-        score: score,
-        totalQuestions: totalQuestions,
-        date: new Date().toLocaleString('kk-KZ'),
-        percent: percentValue  // ✅ Сан ретінде сақтау керек!
-    });
-    
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    
-    let users = JSON.parse(localStorage.getItem('users') || '[]');
-    const index = users.findIndex(u => u.email === currentUser.email);
-    if (index !== -1) {
-        users[index] = currentUser;
-        localStorage.setItem('users', JSON.stringify(users));
-    }
-    
-    return true;
-}
-
-    // ============== НӘТИЖЕНІ КӨРСЕТУ ==============
-    function showResults(score, totalQuestions) {
-      const percentage = (score / totalQuestions) * 100;
-      
-      $("finalScore").textContent = `${score}/${totalQuestions}`;
-      $("progressFill").style.width = `${percentage}%`;
-      
-      const msg = $("resultMessage");
-      if (percentage >= 80) {
-        msg.textContent = "🎉 Тамаша! Сіз кинематика тақырыбын жақсы білесіз!";
-        msg.style.color = "#28a745";
-      } else if (percentage >= 60) {
-        msg.textContent = "👍 Жақсы! Бірақ әлі үйрену керек.";
-        msg.style.color = "#ffc107";
-      } else {
-        msg.textContent = "📚 Қайталау қажет. Материалды қайта оқып шығыңыз.";
-        msg.style.color = "#dc3545";
       }
       
-      $("resultModal").style.display = "flex";
+      try {
+        const response = await fetch(`${API_URL}/save-test`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            toqsan: TOQSAN,
+            testName: TEST_NAME,
+            score: score,
+            totalQuestions: totalQuestions
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          console.log("✅ Нәтиже сақталды!");
+          return true;
+        } else {
+          console.error("Сақтау қатесі:", data.message);
+          return false;
+        }
+      } catch (error) {
+        console.error("Сервер қатесі:", error);
+        return false;
+      }
     }
 
-    function closeModal() {
-      $("resultModal").style.display = "none";
-    }
-
-    // ============== ТЕСТТІ ТЕКСЕРУ ==============
-    function submitTest() {
+    // ============== НӘТИЖЕНІ КӨРСЕТУ ЖӘНЕ САҚТАУ ==============
+    async function submitTest() {
       const submitBtn = $("submitBtn");
       submitBtn.disabled = true;
       submitBtn.textContent = "⏳ Тест тексерілуде...";
@@ -566,8 +537,15 @@
           if (userAnswer === correctAnswers["q" + i]) score++;
         }
         
-        saveToLocalStorage(score, totalQuestions);
-        showResults(score, totalQuestions);
+        // Бэкендке сақтау
+        const saved = await saveToBackend(score, totalQuestions);
+        
+        if (saved) {
+          showResults(score, totalQuestions);
+        } else {
+          alert("⚠️ Нәтиже сақталмады! Интернет байланысын тексеріңіз.");
+          showResults(score, totalQuestions);
+        }
         
       } catch (err) {
         console.error("Қате:", err);
@@ -576,6 +554,31 @@
         submitBtn.disabled = false;
         submitBtn.textContent = "✅ Тестті аяқтау";
       }
+    }
+
+    function showResults(score, totalQuestions) {
+      const percentage = (score / totalQuestions) * 100;
+      
+      $("finalScore").textContent = `${score}/${totalQuestions}`;
+      $("progressFill").style.width = `${percentage}%`;
+      
+      const msg = $("resultMessage");
+      if (percentage >= 80) {
+        msg.textContent = "🎉 Тамаша! Сақталу заңдарын жақсы білесіз!";
+        msg.style.color = "#28a745";
+      } else if (percentage >= 60) {
+        msg.textContent = "👍 Жақсы! Бірақ әлі үйрену керек.";
+        msg.style.color = "#ffc107";
+      } else {
+        msg.textContent = "📚 Қайталау қажет. Материалды қайта оқып шығыңыз.";
+        msg.style.color = "#dc3545";
+      }
+      
+      $("resultModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      $("resultModal").style.display = "none";
     }
 
     // ============== ОҚИҒАЛАРДЫ БАЙЛАНЫСТЫРУ ==============
