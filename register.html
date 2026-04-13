@@ -2,15 +2,16 @@
 <html lang="kz">
 <head>
     <meta charset="UTF-8">
-    <title>Тіркелу</title>
+    <title>Тіркелу - Физика Білім Платформасы</title>
     <style>
         body { font-family: Arial; background: #eaf4fc; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .container { background: white; padding: 40px; border-radius: 15px; width: 320px; text-align: center; }
         input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; }
         button { width: 95%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        button:disabled { background: #aaa; cursor: not-allowed; }
         .link { color: #1E90FF; cursor: pointer; margin-top: 15px; display: inline-block; }
-        .error { color: red; margin-top: 10px; }
-        .success { color: green; margin-top: 10px; }
+        .error { color: red; margin-top: 10px; display: block; }
+        .success { color: green; margin-top: 10px; display: block; }
     </style>
 </head>
 <body>
@@ -19,47 +20,74 @@
     <input type="text" id="name" placeholder="Аты-жөні">
     <input type="email" id="email" placeholder="Email">
     <input type="password" id="password" placeholder="Пароль">
-    <button onclick="register()">Тіркелу</button>
-    <div class="link" onclick="location.href='login.html'">Кіру</div>
+    <button onclick="register()" id="registerBtn">Тіркелу</button>
+    <div class="link" onclick="location.href='login.html'">🔐 Кіру</div>
     <div id="message"></div>
 </div>
 
 <script>
-function register() {
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const msgDiv = document.getElementById('message');
+    // ============ БЭКЕНД КОНФИГУРАЦИЯСЫ ============
+    const API_URL = "https://site-physics.onrender.com";
     
-    if (!name || !email || !password) {
-        msgDiv.innerHTML = '<span class="error">Барлық өрістерді толтырыңыз!</span>';
-        return;
+    async function register() {
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const msgDiv = document.getElementById('message');
+        const registerBtn = document.getElementById('registerBtn');
+        
+        // Валидация
+        if (!name || !email || !password) {
+            msgDiv.innerHTML = '<span class="error">❌ Барлық өрістерді толтырыңыз!</span>';
+            return;
+        }
+        
+        if (password.length < 6) {
+            msgDiv.innerHTML = '<span class="error">❌ Құпия сөз кемінде 6 таңба болуы керек!</span>';
+            return;
+        }
+        
+        // Кнопканы өшіріп, жүктеу режиміне қою
+        registerBtn.disabled = true;
+        registerBtn.textContent = '⏳ Тіркелу...';
+        msgDiv.innerHTML = '';
+        
+        try {
+            const response = await fetch(`${API_URL}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                msgDiv.innerHTML = '<span class="success">✅ Тіркелу сәтті! Кіру бетіне өтуде...</span>';
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            } else {
+                msgDiv.innerHTML = `<span class="error">❌ ${data.message || 'Тіркелу кезінде қате болды!'}</span>`;
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Тіркелу';
+            }
+        } catch (error) {
+            console.error('Register error:', error);
+            msgDiv.innerHTML = '<span class="error">❌ Серверге қосылу мүмкін болмады. Бэкенд жұмыс істеп тұрғанын тексеріңіз.</span>';
+            registerBtn.disabled = false;
+            registerBtn.textContent = 'Тіркелу';
+        }
     }
     
-    let users = JSON.parse(localStorage.getItem('users') || '[]');
-    
-    if (users.find(u => u.email === email)) {
-        msgDiv.innerHTML = '<span class="error">Бұл email тіркелген!</span>';
-        return;
-    }
-    
-    const newUser = {
-        name: name,
-        email: email,
-        password: password,
-        memberSince: new Date().toLocaleDateString('kk-KZ'),
-        tests: []
-    };
-    
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-    localStorage.setItem('currentUser', JSON.stringify(newUser));
-    
-    msgDiv.innerHTML = '<span class="success">Тіркелу сәтті! Бағытталуда...</span>';
-    setTimeout(() => {
-        window.location.href = 'user.html';
-    }, 1000);
-}
+    // Enter батырмасын басқанда тіркелу
+    document.getElementById('password').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            register();
+        }
+    });
 </script>
 </body>
 </html>
