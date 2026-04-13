@@ -15,7 +15,6 @@
       padding: 20px;
     }
 
-    /* Header стильдері - user.html-ға ұқсас */
     .header {
       background: white;
       padding: 15px 30px;
@@ -51,7 +50,6 @@
       transform: translateY(-2px);
     }
 
-    /* Тест контейнері */
     .test-container {
       max-width: 900px;
       margin: 0 auto;
@@ -77,7 +75,6 @@
       font-size: 1rem;
     }
 
-    /* Карточка стилі */
     .question-card {
       background: white;
       border-radius: 16px;
@@ -170,7 +167,6 @@
       flex-wrap: wrap;
     }
 
-    /* Модалдық терезе */
     .result-modal {
       display: none;
       position: fixed;
@@ -252,11 +248,6 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
-    .progress-info span {
-      color: #1E90FF;
-      font-weight: bold;
-    }
-
     @media (max-width: 768px) {
       .header { flex-direction: column; gap: 15px; text-align: center; }
       .question-card { padding: 18px; }
@@ -286,7 +277,6 @@
     </div>
 
     <form id="testForm">
-      <!-- Q1 -->
       <div class="question-card" data-q="q1">
         <div class="question-title">Сұрақ №1</div>
         <div class="question-text">Тербелмелі қозғалыс дегеніміз:</div>
@@ -299,7 +289,6 @@
         <input type="hidden" id="q1" />
       </div>
 
-      <!-- Q2 -->
       <div class="question-card" data-q="q2">
         <div class="question-title">Сұрақ №2</div>
         <div class="question-text">Тербелмелі қозғалыстың теңдеуі x=0,4sin5πt болса, тербеліс амплитудасы</div>
@@ -312,7 +301,6 @@
         <input type="hidden" id="q2" />
       </div>
 
-      <!-- Q3 -->
       <div class="question-card" data-q="q3">
         <div class="question-title">Сұрақ №3</div>
         <div class="question-text">Нүктенің гармониялық тербеліс теңдеуі x=4sin2πt (м). Осы дене тербелісінің 0,5 с уақыт мезетіндегі үдеуі</div>
@@ -326,7 +314,6 @@
         <input type="hidden" id="q3" />
       </div>
 
-      <!-- Q4 -->
       <div class="question-card" data-q="q4">
         <div class="question-title">Сұрақ №4</div>
         <div class="question-text">Серіппеге ілінген массасы 200 г дененің тербеліс периоды 0,25 с болса, серіппе қатаңдығы</div>
@@ -339,7 +326,6 @@
         <input type="hidden" id="q4" />
       </div>
 
-      <!-- Q5 -->
       <div class="question-card" data-q="q5">
         <div class="question-title">Сұрақ №5</div>
         <div class="question-text">Еркін тербелістер деп аталады:</div>
@@ -352,7 +338,6 @@
         <input type="hidden" id="q5" />
       </div>
 
-      <!-- Q6 -->
       <div class="question-card" data-q="q6">
         <div class="question-title">Сұрақ №6</div>
         <div class="question-text">Резонанс құбылысы қашан байқалады?</div>
@@ -365,7 +350,6 @@
         <input type="hidden" id="q6" />
       </div>
 
-      <!-- Q7 -->
       <div class="question-card" data-q="q7">
         <div class="question-title">Сұрақ №7</div>
         <div class="question-text">Дыбыс қандай толқынға жатады?</div>
@@ -378,7 +362,6 @@
         <input type="hidden" id="q7" />
       </div>
 
-      <!-- Q8 -->
       <div class="question-card" data-q="q8">
         <div class="question-title">Сұрақ №8</div>
         <div class="question-text">Толқын ұзындығы 2 м, жиілігі 4 Гц. Толқын жылдамдығы:</div>
@@ -391,7 +374,6 @@
         <input type="hidden" id="q8" />
       </div>
 
-      <!-- Q9 -->
       <div class="question-card" data-q="q9">
         <div class="question-title">Сұрақ №9</div>
         <div class="question-text">Жаңғырық естілуі үшін дыбыс шағылған бетке дейінгі ең аз қашықтық (v≈340 м/с):</div>
@@ -404,7 +386,6 @@
         <input type="hidden" id="q9" />
       </div>
 
-      <!-- Q10 -->
       <div class="question-card" data-q="q10">
         <div class="question-title">Сұрақ №10</div>
         <div class="question-text">Ұзындығы l=2,45 м, математикалық маятниктің тербелісінің амплитудасы А=1 см, бастапқы фазасы φ=0 болса оның қозғалыс теңдеуі (g=9,8 м/с²)</div>
@@ -427,7 +408,6 @@
     </div>
   </div>
 
-  <!-- Result Modal -->
   <div class="result-modal" id="resultModal">
     <div class="modal-content">
       <h2>📊 Тест нәтижесі!</h2>
@@ -444,6 +424,11 @@
   </div>
 
   <script>
+    // ============== КОНФИГУРАЦИЯ ==============
+    const API_URL = "https://site-physics.onrender.com";
+    const TOQSAN = 3;
+    const TEST_NAME = "Тербелістер мен толқындар";
+
     // ============== ДҰРЫС ЖАУАПТАР ==============
     const correctAnswers = {
       q1: "A",
@@ -458,7 +443,6 @@
       q10: "A"
     };
 
-    // ============== КӨМЕКШІ ФУНКЦИЯЛАР ==============
     function $(id) { return document.getElementById(id); }
 
     function getSelectedValue(optionEl) {
@@ -473,41 +457,80 @@
       return true;
     }
 
-    // ============== LOCALSTORAGE-ҒА САҚТАУ ==============
-    function saveToLocalStorage(score, totalQuestions) {
-      const testTitle = "Тербелістер мен толқындар тесті - 3 тоқсан";
+    // ============== БЭКЕНДКЕ САҚТАУ ==============
+    async function saveToBackend(score, totalQuestions) {
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
       
-      let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-      
-      if (!currentUser) {
+      if (!currentUser || !currentUser.id) {
         alert('Пайдаланушы кірмеген! Қайта кіріңіз.');
         window.location.href = 'login.html';
         return false;
       }
       
-      if (!currentUser.tests) currentUser.tests = [];
-      
-      currentUser.tests.push({
-        testTitle: testTitle,
-        score: score,
-        totalQuestions: totalQuestions,
-        date: new Date().toLocaleString('kk-KZ'),
-        percent: ((score / totalQuestions) * 100).toFixed(1)
-      });
-      
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-      
-      let users = JSON.parse(localStorage.getItem('users') || '[]');
-      const index = users.findIndex(u => u.email === currentUser.email);
-      if (index !== -1) {
-        users[index] = currentUser;
-        localStorage.setItem('users', JSON.stringify(users));
+      try {
+        const response = await fetch(`${API_URL}/save-test`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            toqsan: TOQSAN,
+            testName: TEST_NAME,
+            score: score,
+            totalQuestions: totalQuestions
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          console.log("✅ Нәтиже сақталды!");
+          return true;
+        } else {
+          console.error("Сақтау қатесі:", data.message);
+          return false;
+        }
+      } catch (error) {
+        console.error("Сервер қатесі:", error);
+        return false;
       }
-      
-      return true;
     }
 
     // ============== НӘТИЖЕНІ КӨРСЕТУ ==============
+    async function submitTest() {
+      const submitBtn = $("submitBtn");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Тест тексерілуде...";
+      
+      const totalQuestions = 10;
+      
+      try {
+        if (!allAnswered(totalQuestions)) {
+          alert("⚠️ Барлық сұраққа жауап беріңіз!");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "✅ Тестті аяқтау";
+          return;
+        }
+        
+        let score = 0;
+        for (let i = 1; i <= totalQuestions; i++) {
+          const userAnswer = $("q" + i).value;
+          if (userAnswer === correctAnswers["q" + i]) score++;
+        }
+        
+        await saveToBackend(score, totalQuestions);
+        showResults(score, totalQuestions);
+        
+      } catch (err) {
+        console.error("Қате:", err);
+        alert("Қате пайда болды: " + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "✅ Тестті аяқтау";
+      }
+    }
+
     function showResults(score, totalQuestions) {
       const percentage = (score / totalQuestions) * 100;
       
@@ -533,41 +556,7 @@
       $("resultModal").style.display = "none";
     }
 
-    // ============== ТЕСТТІ ТЕКСЕРУ ==============
-    function submitTest() {
-      const submitBtn = $("submitBtn");
-      submitBtn.disabled = true;
-      submitBtn.textContent = "⏳ Тест тексерілуде...";
-      
-      const totalQuestions = 10;
-      
-      try {
-        if (!allAnswered(totalQuestions)) {
-          alert("⚠️ Барлық сұраққа жауап беріңіз!");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "✅ Тестті аяқтау";
-          return;
-        }
-        
-        let score = 0;
-        for (let i = 1; i <= totalQuestions; i++) {
-          const userAnswer = $("q" + i).value;
-          if (userAnswer === correctAnswers["q" + i]) score++;
-        }
-        
-        saveToLocalStorage(score, totalQuestions);
-        showResults(score, totalQuestions);
-        
-      } catch (err) {
-        console.error("Қате:", err);
-        alert("Қате пайда болды: " + err.message);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "✅ Тестті аяқтау";
-      }
-    }
-
-    // ============== ОҚИҒАЛАРДЫ БАЙЛАНЫСТЫРУ ==============
+    // ============== ОҚИҒАЛАР ==============
     document.addEventListener("click", (e) => {
       const option = e.target.closest(".option");
       if (!option) return;
@@ -591,7 +580,6 @@
       if (e.target.id === "resultModal") closeModal();
     });
     
-    // ============== ПАЙДАЛАНУШЫНЫ ТЕКСЕРУ ==============
     window.addEventListener("load", () => {
       const storedUser = localStorage.getItem("currentUser");
       if (!storedUser) {
