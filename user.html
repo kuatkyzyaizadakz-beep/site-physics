@@ -366,6 +366,9 @@
 </style>
 
 <script>
+// ====================== КОНФИГУРАЦИЯ ======================
+const API_URL = "https://site-physics.onrender.com";
+
 // ====================== ТЕСТТЕР ТІЗІМІ ======================
 const modules = [
     { title: "📚 1-тоқсан", link: "test-1.html" },
@@ -385,50 +388,35 @@ const topicTests = [
 ];
 
 let currentUser = null;
+let userData = null;
 
-// Пайдаланушыны жүктеу
-function loadUserData() {
+// ====================== ПАЙДАЛАНУШЫ МӘЛІМЕТТЕРІН ЖҮКТЕУ ======================
+async function loadUserData() {
     try {
-        let user = JSON.parse(localStorage.getItem('currentUser'));
+        // localStorage-тен ағымдағы пайдаланушыны алу
+        const storedUser = JSON.parse(localStorage.getItem('currentUser'));
         
-        if (!user || !user.email) {
+        if (!storedUser || !storedUser.id) {
             showErrorAndRedirect();
             return false;
         }
         
-        let users = JSON.parse(localStorage.getItem('users') || '[]');
-        const foundUser = users.find(u => u.email === user.email);
+        currentUser = storedUser;
         
-        if (foundUser) {
-            currentUser = foundUser;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        } else {
-            currentUser = user;
+        // Бэкендтен пайдаланушының толық мәліметтерін алу
+        const response = await fetch(`${API_URL}/user/${currentUser.id}`);
+        
+        if (!response.ok) {
+            throw new Error('Пайдаланушы табылмады');
         }
         
-        if (!currentUser.tests) currentUser.tests = [];
-        if (!currentUser.memberSince) currentUser.memberSince = new Date().toLocaleDateString('kk-KZ');
+        userData = await response.json();
+        currentUser.name = userData.name;
+        currentUser.email = userData.email;
+        currentUser.testResults = userData.testResults || [];
         
-        // ЕСКІ НӘТИЖЕЛЕРДІ ТҮЗЕТУ (percent сан болуы керек)
-        if (currentUser.tests.length > 0) {
-            let needsFix = false;
-            currentUser.tests = currentUser.tests.map(t => {
-                if (!t.percent || typeof t.percent === 'string') {
-                    needsFix = true;
-                    t.percent = (t.score / t.totalQuestions) * 100;
-                }
-                return t;
-            });
-            if (needsFix) {
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                let users = JSON.parse(localStorage.getItem('users') || '[]');
-                const idx = users.findIndex(u => u.email === currentUser.email);
-                if (idx !== -1) {
-                    users[idx] = currentUser;
-                    localStorage.setItem('users', JSON.stringify(users));
-                }
-            }
-        }
+        // localStorage-ті жаңарту
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
         
         renderDashboard();
         return true;
@@ -450,40 +438,34 @@ function showErrorAndRedirect() {
     `;
 }
 
-// Бетті көрсету
+// ====================== БЕТТІ КӨРСЕТУ ======================
 function renderDashboard() {
     const mainContent = document.getElementById('mainContent');
     
     // Статистика есептеу
-    const totalTests = currentUser.tests.length;
+    const testResults = userData?.testResults || [];
+    const totalTests = testResults.length;
+    
     let averagePercent = 0;
     let bestPercent = 0;
     
     if (totalTests > 0) {
-        // Орташа нәтижені есептеу - percent сан екеніне көз жеткізу
-        let validTests = currentUser.tests.filter(t => typeof t.percent === 'number' && !isNaN(t.percent));
-        
-        if (validTests.length > 0) {
-            const totalPercent = validTests.reduce((sum, t) => sum + t.percent, 0);
-            averagePercent = (totalPercent / validTests.length).toFixed(1);
-            
-            // Үздік нәтижені есептеу
-            bestPercent = Math.max(...validTests.map(t => t.percent)).toFixed(1);
-        } else {
-            // Ескі форматтағы тесттер үшін (percent жоқ болса)
-            const totalPercent = currentUser.tests.reduce((sum, t) => sum + ((t.score / t.totalQuestions) * 100), 0);
-            averagePercent = (totalPercent / totalTests).toFixed(1);
-            bestPercent = Math.max(...currentUser.tests.map(t => (t.score / t.totalQuestions) * 100)).toFixed(1);
-        }
+        const percentages = testResults.map(t => (t.score / t.totalQuestions) * 100);
+        averagePercent = (percentages.reduce((a, b) => a + b, 0) / totalTests).toFixed(1);
+        bestPercent = Math.max(...percentages).toFixed(1);
     }
+    
+    const memberSince = userData?.memberSince || new Date().toLocaleDateString('kk-KZ');
+    const lastTest = testResults.length > 0 ? testResults[testResults.length - 1] : null;
+    const lastTestDate = lastTest ? new Date(lastTest.date).toLocaleDateString('kk-KZ') : 'Жоқ';
     
     mainContent.innerHTML = `
         <div class="user-dashboard">
             <div class="card profile-card">
-                <div class="profile-icon">${getAvatarIcon(currentUser.name)}</div>
-                <h2>${escapeHtml(currentUser.name)}</h2>
-                <p style="color: #666;">📧 ${escapeHtml(currentUser.email)}</p>
-                <p style="color: #888; margin-top: 10px; font-size: 0.9rem;">📅 Қосылған: ${currentUser.memberSince}</p>
+                <div class="profile-icon">${getAvatarIcon(currentUser?.name)}</div>
+                <h2>${escapeHtml(currentUser?.name || 'Пайдаланушы')}</h2>
+                <p style="color: #666;">📧 ${escapeHtml(currentUser?.email || '')}</p>
+                <p style="color: #888; margin-top: 10px; font-size: 0.9rem;">📅 Қосылған: ${memberSince}</p>
             </div>
 
             <div class="card stats-card">
@@ -502,7 +484,7 @@ function renderDashboard() {
                 </div>
                 <div class="stat-item">
                     <span>⏱️ Соңғы тест:</span>
-                    <strong>${getLastTestDate()}</strong>
+                    <strong>${lastTestDate}</strong>
                 </div>
             </div>
 
@@ -536,11 +518,6 @@ function renderDashboard() {
 function getAvatarIcon(name) {
     if (!name) return '👤';
     return name.charAt(0).toUpperCase();
-}
-
-function getLastTestDate() {
-    if (!currentUser.tests.length) return 'Жоқ';
-    return currentUser.tests[currentUser.tests.length - 1].date;
 }
 
 function escapeHtml(str) {
@@ -582,12 +559,14 @@ function renderModulesAndTests() {
 }
 
 function calculateModuleProgress(moduleTitle) {
+    const testResults = userData?.testResults || [];
     const moduleNum = parseInt(moduleTitle.match(/\d+/)?.[0] || 0);
-    const moduleTests = currentUser.tests.filter(t => t.testTitle.includes(moduleNum + "-тоқсан"));
+    const moduleTests = testResults.filter(t => t.toqsan === moduleNum);
+    
     if (moduleTests.length === 0) return 0;
     
-    const totalScore = moduleTests.reduce((sum, t) => sum + t.score, 0);
-    const totalQuestions = moduleTests.reduce((sum, t) => sum + t.totalQuestions, 0);
+    const totalScore = moduleTests.reduce((sum, t) => sum + (t.score || 0), 0);
+    const totalQuestions = moduleTests.reduce((sum, t) => sum + (t.totalQuestions || 1), 0);
     return Math.round((totalScore / totalQuestions) * 100);
 }
 
@@ -614,25 +593,28 @@ function renderRecentTests() {
     const container = document.getElementById('recentTests');
     if (!container) return;
     
-    if (!currentUser.tests.length) {
+    const testResults = userData?.testResults || [];
+    
+    if (testResults.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: #888;">📭 Әлі тест нәтижелері жоқ. Жоғарыдан тест таңдаңыз!</p>';
         return;
     }
     
-    container.innerHTML = currentUser.tests.slice().reverse().slice(0, 10).map(t => {
-        const percent = t.percent ? t.percent.toFixed(1) : ((t.score / t.totalQuestions) * 100).toFixed(1);
+    container.innerHTML = testResults.slice().reverse().slice(0, 10).map(t => {
+        const percent = ((t.score / t.totalQuestions) * 100).toFixed(1);
         const emoji = percent >= 80 ? '🎉' : percent >= 50 ? '👍' : '📚';
+        const date = new Date(t.date).toLocaleDateString('kk-KZ');
         return `
             <div class="test-item">
-                <h4>${emoji} ${escapeHtml(t.testTitle)}</h4>
+                <h4>${emoji} ${escapeHtml(t.testName)}</h4>
                 <p>📊 Балл: ${t.score}/${t.totalQuestions} (${percent}%)</p>
-                <small>📅 ${t.date}</small>
+                <small>📅 ${date}</small>
             </div>
         `;
     }).join('');
 }
 
-// Шығу функциясы
+// ====================== ШЫҒУ ======================
 function logout() {
     if (confirm('Шыққыңыз келе ме?')) {
         localStorage.removeItem('currentUser');
@@ -640,7 +622,7 @@ function logout() {
     }
 }
 
-// Бет жүктелгенде
+// ====================== БЕТ ЖҮКТЕЛГЕНДЕ ======================
 document.addEventListener('DOMContentLoaded', loadUserData);
 </script>
 </body>
