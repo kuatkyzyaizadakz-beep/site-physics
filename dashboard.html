@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="kz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Материалдар - Физика Білім Платформасы</title>
+    <link rel="icon" type="image/png" href="лого.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #eaf4fc 0%, #d4e4f5 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            height: 55px;
+            width: 55px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #1E90FF20;
+            padding: 5px;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-text p {
+            margin: 5px 0 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .user-info {
+            background: linear-gradient(135deg, #f0f8ff, #e8f4ff);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-weight: 600;
+            color: #1E90FF;
+            font-size: 0.9rem;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30,144,255,0.3);
+        }
+
+        .admin-panel-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .admin-panel-btn:hover {
+            box-shadow: 0 5px 15px rgba(220,53,69,0.3);
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .quarters-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .quarter-card {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            border-radius: 20px;
+            padding: 35px 25px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid #1E90FF;
+        }
+
+        .quarter-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(30,144,255,0.2);
+        }
+
+        .quarter-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .quarter-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1E90FF;
+        }
+
+        .quarter-subtitle {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .header-left {
+                flex-direction: column;
+            }
+            .content {
+                padding: 15px;
+            }
+            .quarters-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-left">
+            <img src="лого.png" class="logo" alt="Logo" onerror="this.src='https://via.placeholder.com/55?text=Ph'">
+            <div class="header-text">
+                <h1>🔬 Физика Білім Платформасы</h1>
+                <p>9 сынып педагогтарына арналған көмекші құрал</p>
+            </div>
+        </div>
+        <div class="user-info" id="userInfo">Жүктелуде...</div>
+        <div class="nav-buttons" id="navButtons"></div>
+    </header>
+
+    <main class="content">
+        <div class="quarters-container">
+            <a href="1.html" class="quarter-card">
+                <div class="quarter-icon">📘</div>
+                <div class="quarter-title">I тоқсан</div>
+                <div class="quarter-subtitle">Кинематика • Астрономия</div>
+            </a>
+            <a href="2.html" class="quarter-card">
+                <div class="quarter-icon">📗</div>
+                <div class="quarter-title">II тоқсан</div>
+                <div class="quarter-subtitle">Динамика • Заңдар</div>
+            </a>
+            <a href="3.html" class="quarter-card">
+                <div class="quarter-icon">📕</div>
+                <div class="quarter-title">III тоқсан</div>
+                <div class="quarter-subtitle">Сақталу заңдары • Толқындар</div>
+            </a>
+            <a href="4.html" class="quarter-card">
+                <div class="quarter-icon">📙</div>
+                <div class="quarter-title">IV тоқсан</div>
+                <div class="quarter-subtitle">Атом физикасы • Ядро</div>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        const ADMIN_EMAIL = "kuatkyzyaizada1@gmail.com";
+
+        function loadUserInfo() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const userInfoDiv = document.getElementById('userInfo');
+            const navButtonsDiv = document.getElementById('navButtons');
+            
+            // Пайдаланушы атын көрсету
+            if (currentUser.email === ADMIN_EMAIL) {
+                userInfoDiv.innerHTML = `👑 ${currentUser.name} <span class="admin-badge">Админ</span>`;
+                
+                // АДМИН ҮШІН: "Админ панелі" + "Шығу" кнопкалары
+                navButtonsDiv.innerHTML = `
+                    <a href="admin.html" class="nav-btn admin-panel-btn">👑 Админ панелі</a>
+                    <button class="nav-btn" onclick="logout()">🚪 Шығу</button>
+                `;
+            } else {
+                userInfoDiv.innerHTML = `👋 ${currentUser.name}`;
+                
+                // ҚАРАПАЙЫМ ПАЙДАЛАНУШЫ ҮШІН: "Менің профилім" + "Шығу"
+                navButtonsDiv.innerHTML = `
+                    <a href="user.html" class="nav-btn">👤 Менің профилім</a>
+                    <button class="nav-btn" onclick="logout()">🚪 Шығу</button>
+                `;
+            }
+        }
+
+        function logout() {
+            if (confirm('Шыққыңыз келе ме?')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', loadUserInfo);
+    </script>
+</body>
+</html>

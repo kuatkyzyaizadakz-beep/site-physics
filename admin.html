@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="kz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ Панелі - Физика Білім Платформасы</title>
+    <link rel="icon" type="image/png" href="лого.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #eaf4fc 0%, #d4e4f5 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            height: 55px;
+            width: 55px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #1E90FF20;
+            padding: 5px;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-text p {
+            margin: 5px 0 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30,144,255,0.3);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .content {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Админ статистика карточкалары */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #1E90FF;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            color: #1E90FF;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Оқушылар кестесі */
+        .students-section {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .students-section h2 {
+            color: #1E90FF;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #1E90FF;
+            padding-bottom: 10px;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #1E90FF;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            background: #f0f8ff;
+            color: #1E90FF;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #555;
+        }
+
+        tr:hover td {
+            background: #f8fbff;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-high { background: #c6f6d5; color: #22543d; }
+        .badge-mid { background: #fefcbf; color: #744210; }
+        .badge-low { background: #fed7d7; color: #822727; }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .header-left {
+                flex-direction: column;
+            }
+            .content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-left">
+            <img src="лого.png" class="logo" alt="Logo" onerror="this.src='https://via.placeholder.com/55?text=Ph'">
+            <div class="header-text">
+                <h1>🔬 Физика Білім Платформасы</h1>
+                <p>9 сынып педагогтарына арналған көмекші құрал</p>
+            </div>
+        </div>
+        <div class="nav-buttons">
+            <span class="admin-badge">👑 Админ</span>
+            <a href="dashboard.html" class="nav-btn">📚 Материалдар</a>
+            <button class="nav-btn logout-btn" onclick="logout()">🚪 Шығу</button>
+        </div>
+    </header>
+
+    <main class="content">
+        <!-- Админ статистикасы -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="totalStudents">0</h3>
+                <p>👨‍🎓 Тіркелген оқушылар</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="totalTests">0</h3>
+                <p>📝 Барлық тесттер саны</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="avgScore">0%</h3>
+                <p>📊 Орташа үлгерім</p>
+            </div>
+        </div>
+
+        <!-- Оқушылардың нәтижелері -->
+        <div class="students-section">
+            <h2>📋 Оқушылардың тест нәтижелері</h2>
+            <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Оқушы аты немесе email бойынша іздеу...">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Оқушы</th><th>Email</th><th>Тест атауы</th><th>Нәтиже</th><th>Күні</th></tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="5" class="no-data">Жүктелуде...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const ADMIN_EMAIL = "kuatkyzyaizada1@gmail.com";
+
+        function getAllUsers() {
+            return JSON.parse(localStorage.getItem('users') || '[]');
+        }
+
+        function checkAdminAccess() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        function calculateStats() {
+            const users = getAllUsers();
+            const students = users.filter(u => u.email !== ADMIN_EMAIL);
+            let totalTests = 0, totalScore = 0, totalQuestions = 0;
+
+            students.forEach(user => {
+                if (user.tests) {
+                    totalTests += user.tests.length;
+                    user.tests.forEach(t => {
+                        totalScore += t.score;
+                        totalQuestions += t.totalQuestions;
+                    });
+                }
+            });
+
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('totalTests').textContent = totalTests;
+            document.getElementById('avgScore').textContent = totalQuestions > 0 ? (totalScore / totalQuestions * 100).toFixed(1) + '%' : '0%';
+        }
+
+        function renderTable() {
+            const users = getAllUsers();
+            const students = users.filter(u => u.email !== ADMIN_EMAIL);
+            const tbody = document.getElementById('tableBody');
+            
+            let html = '';
+            students.forEach(user => {
+                if (user.tests && user.tests.length > 0) {
+                    user.tests.forEach(test => {
+                        const percent = (test.score / test.totalQuestions) * 100;
+                        let badge = 'badge-low';
+                        if (percent >= 80) badge = 'badge-high';
+                        else if (percent >= 50) badge = 'badge-mid';
+                        
+                        html += `<tr>
+                            <td><strong>${user.name}</strong></td>
+                            <td>${user.email}</td>
+                            <td>${test.testTitle}</td>
+                            <td><span class="badge ${badge}">${test.score}/${test.totalQuestions} (${percent.toFixed(0)}%)</span></td>
+                            <td>${test.date || 'Белгісіз'}</td>
+                        </tr>`;
+                    });
+                }
+            });
+            
+            tbody.innerHTML = html || '<tr><td colspan="5" class="no-data">📭 Әлі тест нәтижелері жоқ</td></tr>';
+        }
+
+        function filterTable() {
+            const filter = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+            });
+        }
+
+        function logout() {
+            if (confirm('Шыққыңыз келе ме?')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAdminAccess();
+            calculateStats();
+            renderTable();
+            document.getElementById('searchInput').addEventListener('keyup', filterTable);
+        });
+    </script>
+</body>
+</html>

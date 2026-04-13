@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тербелістер мен толқындар тесті - 3 тоқсан</title>
+  <link rel="icon" type="image/png" href="лого.png" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #eaf4fc 0%, #d4e4f5 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Header стильдері - user.html-ға ұқсас */
+    .header {
+      background: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1E90FF;
+    }
+
+    .nav-btn {
+      padding: 10px 20px;
+      background: #1E90FF;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+
+    .nav-btn:hover {
+      background: #0066cc;
+      transform: translateY(-2px);
+    }
+
+    /* Тест контейнері */
+    .test-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .test-header {
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      margin-bottom: 25px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .test-header h1 {
+      color: #1E90FF;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+
+    .test-header p {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    /* Карточка стилі */
+    .question-card {
+      background: white;
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .question-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .question-title {
+      color: #1E90FF;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #1E90FF;
+      display: inline-block;
+    }
+
+    .question-text {
+      color: #333;
+      font-size: 1rem;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .option {
+      padding: 14px 18px;
+      background: #f0f8ff;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    .option:hover {
+      border-color: #1E90FF;
+      background: #e3f0ff;
+      transform: translateX(5px);
+    }
+
+    .option.selected {
+      border-color: #1E90FF;
+      background: linear-gradient(135deg, #1E90FF, #0066cc);
+      color: white;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #28a745, #1e7e34);
+      color: white;
+      border: none;
+      border-radius: 40px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(40,167,69,0.3);
+    }
+
+    .submit-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Модалдық терезе */
+    .result-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(5px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 25px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-content h2 {
+      color: #1E90FF;
+      margin-bottom: 20px;
+    }
+
+    .score {
+      font-size: 3rem;
+      color: #1E90FF;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(45deg, #1E90FF, #764ba2);
+      transition: width 0.5s ease;
+      width: 0%;
+      border-radius: 10px;
+    }
+
+    .modal-btn {
+      padding: 12px 25px;
+      background: #1E90FF;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      margin: 5px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .modal-btn:hover {
+      background: #0066cc;
+    }
+
+    .progress-info {
+      background: white;
+      border-radius: 16px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .progress-info span {
+      color: #1E90FF;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .header { flex-direction: column; gap: 15px; text-align: center; }
+      .question-card { padding: 18px; }
+      .option { padding: 10px 14px; }
+      .modal-content { padding: 25px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo">🔬 Физика Білім Платформасы</div>
+    <div>
+      <a href="user.html" class="nav-btn">🏠 Профильге оралу</a>
+      <a href="dashboard.html" class="nav-btn">📊 Басты бет</a>
+    </div>
+  </header>
+
+  <div class="test-container">
+    <div class="test-header">
+      <h1>🌊 Тербелістер мен толқындар тесті - 3 тоқсан</h1>
+      <p>10 сұрақ | Уақыт: 20 минут</p>
+    </div>
+
+    <div class="progress-info">
+      📝 Барлық сұрақтарға жауап беріңіз
+    </div>
+
+    <form id="testForm">
+      <!-- Q1 -->
+      <div class="question-card" data-q="q1">
+        <div class="question-title">Сұрақ №1</div>
+        <div class="question-text">Тербелмелі қозғалыс дегеніміз:</div>
+        <div class="options">
+          <div class="option">A) Дененің белгілі бір уақыт аралығында қайталанып отыратын қозғалысы</div>
+          <div class="option">B) Дененің бірқалыпты түзу сызықты қозғалысы</div>
+          <div class="option">C) Дененің үдемелі қозғалысы</div>
+          <div class="option">D) Дененің тек айналмалы қозғалысы</div>
+        </div>
+        <input type="hidden" id="q1" />
+      </div>
+
+      <!-- Q2 -->
+      <div class="question-card" data-q="q2">
+        <div class="question-title">Сұрақ №2</div>
+        <div class="question-text">Тербелмелі қозғалыстың теңдеуі x=0,4sin5πt болса, тербеліс амплитудасы</div>
+        <div class="options">
+          <div class="option">A) A = 0,004 м</div>
+          <div class="option">B) A = 0,04 м</div>
+          <div class="option">C) А = 0,4 м</div>
+          <div class="option">D) A = 4 м</div>
+        </div>
+        <input type="hidden" id="q2" />
+      </div>
+
+      <!-- Q3 -->
+      <div class="question-card" data-q="q3">
+        <div class="question-title">Сұрақ №3</div>
+        <div class="question-text">Нүктенің гармониялық тербеліс теңдеуі x=4sin2πt (м). Осы дене тербелісінің 0,5 с уақыт мезетіндегі үдеуі</div>
+        <div class="options">
+          <div class="option">A) -8π² м/с²</div>
+          <div class="option">B) 0 м/с²</div>
+          <div class="option">C) -16π² м/с²</div>
+          <div class="option">D) 8π² м/с²</div>
+          <div class="option">E) 16π² м/с²</div>
+        </div>
+        <input type="hidden" id="q3" />
+      </div>
+
+      <!-- Q4 -->
+      <div class="question-card" data-q="q4">
+        <div class="question-title">Сұрақ №4</div>
+        <div class="question-text">Серіппеге ілінген массасы 200 г дененің тербеліс периоды 0,25 с болса, серіппе қатаңдығы</div>
+        <div class="options">
+          <div class="option">A) 156 Н/м</div>
+          <div class="option">B) 63 Н/м</div>
+          <div class="option">C) 104 Н/м</div>
+          <div class="option">D) 128 Н/м</div>
+        </div>
+        <input type="hidden" id="q4" />
+      </div>
+
+      <!-- Q5 -->
+      <div class="question-card" data-q="q5">
+        <div class="question-title">Сұрақ №5</div>
+        <div class="question-text">Еркін тербелістер деп аталады:</div>
+        <div class="options">
+          <div class="option">A) Сыртқы периодты күш әсерінен болатын</div>
+          <div class="option">B) Үйкеліс әсерінен тоқтайтын</div>
+          <div class="option">C) Сыртқы күшсіз, бастапқы ауытқудан кейінгі тербелістер</div>
+          <div class="option">D) Тек механикалық тербелістер</div>
+        </div>
+        <input type="hidden" id="q5" />
+      </div>
+
+      <!-- Q6 -->
+      <div class="question-card" data-q="q6">
+        <div class="question-title">Сұрақ №6</div>
+        <div class="question-text">Резонанс құбылысы қашан байқалады?</div>
+        <div class="options">
+          <div class="option">A) Тербеліс тоқтағанда</div>
+          <div class="option">B) Еріксіз тербеліс жиілігі мен меншікті жиілік тең болғанда</div>
+          <div class="option">C) Амплитуда азайғанда</div>
+          <div class="option">D) Үйкеліс артқанда</div>
+        </div>
+        <input type="hidden" id="q6" />
+      </div>
+
+      <!-- Q7 -->
+      <div class="question-card" data-q="q7">
+        <div class="question-title">Сұрақ №7</div>
+        <div class="question-text">Дыбыс қандай толқынға жатады?</div>
+        <div class="options">
+          <div class="option">A) Электромагниттік</div>
+          <div class="option">B) Механикалық</div>
+          <div class="option">C) Жарық</div>
+          <div class="option">D) Радио</div>
+        </div>
+        <input type="hidden" id="q7" />
+      </div>
+
+      <!-- Q8 -->
+      <div class="question-card" data-q="q8">
+        <div class="question-title">Сұрақ №8</div>
+        <div class="question-text">Толқын ұзындығы 2 м, жиілігі 4 Гц. Толқын жылдамдығы:</div>
+        <div class="options">
+          <div class="option">A) 2 м/с</div>
+          <div class="option">B) 4 м/с</div>
+          <div class="option">C) 6 м/с</div>
+          <div class="option">D) 8 м/с</div>
+        </div>
+        <input type="hidden" id="q8" />
+      </div>
+
+      <!-- Q9 -->
+      <div class="question-card" data-q="q9">
+        <div class="question-title">Сұрақ №9</div>
+        <div class="question-text">Жаңғырық естілуі үшін дыбыс шағылған бетке дейінгі ең аз қашықтық (v≈340 м/с):</div>
+        <div class="options">
+          <div class="option">A) 8,5 м</div>
+          <div class="option">B) 17 м</div>
+          <div class="option">C) 34 м</div>
+          <div class="option">D) 68 м</div>
+        </div>
+        <input type="hidden" id="q9" />
+      </div>
+
+      <!-- Q10 -->
+      <div class="question-card" data-q="q10">
+        <div class="question-title">Сұрақ №10</div>
+        <div class="question-text">Ұзындығы l=2,45 м, математикалық маятниктің тербелісінің амплитудасы А=1 см, бастапқы фазасы φ=0 болса оның қозғалыс теңдеуі (g=9,8 м/с²)</div>
+        <div class="options">
+          <div class="option">A) x=0,01cos2t</div>
+          <div class="option">B) x=0,01cos2,45t</div>
+          <div class="option">C) x=2cos0,01t</div>
+          <div class="option">D) x=2cos0,1t</div>
+          <div class="option">E) x=2,45cos0,01t</div>
+        </div>
+        <input type="hidden" id="q10" />
+      </div>
+
+      <button type="button" class="submit-btn" id="submitBtn">✅ Тестті аяқтау</button>
+    </form>
+
+    <div class="nav-buttons">
+      <a href="user.html" class="nav-btn">👤 Профильге оралу</a>
+      <a href="dashboard.html" class="nav-btn">🏠 Басты бет</a>
+    </div>
+  </div>
+
+  <!-- Result Modal -->
+  <div class="result-modal" id="resultModal">
+    <div class="modal-content">
+      <h2>📊 Тест нәтижесі!</h2>
+      <div class="score" id="finalScore">0/10</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <p id="resultMessage"></p>
+      <div class="nav-buttons" style="justify-content:center;">
+        <button class="modal-btn" id="closeBtn">🔒 Жабу</button>
+        <a href="user.html" class="modal-btn">🏠 Профильге оралу</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============== ДҰРЫС ЖАУАПТАР ==============
+    const correctAnswers = {
+      q1: "A",
+      q2: "C",
+      q3: "B",
+      q4: "D",
+      q5: "C",
+      q6: "B",
+      q7: "B",
+      q8: "D",
+      q9: "B",
+      q10: "A"
+    };
+
+    // ============== КӨМЕКШІ ФУНКЦИЯЛАР ==============
+    function $(id) { return document.getElementById(id); }
+
+    function getSelectedValue(optionEl) {
+      const text = optionEl.textContent.trim();
+      return text.charAt(0);
+    }
+
+    function allAnswered(total) {
+      for (let i = 1; i <= total; i++) {
+        if (!$("q" + i).value) return false;
+      }
+      return true;
+    }
+
+    // ============== LOCALSTORAGE-ҒА САҚТАУ ==============
+    function saveToLocalStorage(score, totalQuestions) {
+      const testTitle = "Тербелістер мен толқындар тесті - 3 тоқсан";
+      
+      let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+      
+      if (!currentUser) {
+        alert('Пайдаланушы кірмеген! Қайта кіріңіз.');
+        window.location.href = 'login.html';
+        return false;
+      }
+      
+      if (!currentUser.tests) currentUser.tests = [];
+      
+      currentUser.tests.push({
+        testTitle: testTitle,
+        score: score,
+        totalQuestions: totalQuestions,
+        date: new Date().toLocaleString('kk-KZ'),
+        percent: ((score / totalQuestions) * 100).toFixed(1)
+      });
+      
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      
+      let users = JSON.parse(localStorage.getItem('users') || '[]');
+      const index = users.findIndex(u => u.email === currentUser.email);
+      if (index !== -1) {
+        users[index] = currentUser;
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+      
+      return true;
+    }
+
+    // ============== НӘТИЖЕНІ КӨРСЕТУ ==============
+    function showResults(score, totalQuestions) {
+      const percentage = (score / totalQuestions) * 100;
+      
+      $("finalScore").textContent = `${score}/${totalQuestions}`;
+      $("progressFill").style.width = `${percentage}%`;
+      
+      const msg = $("resultMessage");
+      if (percentage >= 80) {
+        msg.textContent = "🎉 Тамаша! Сіз тербелістер мен толқындар тақырыбын жақсы білесіз!";
+        msg.style.color = "#28a745";
+      } else if (percentage >= 60) {
+        msg.textContent = "👍 Жақсы! Бірақ әлі үйрену керек.";
+        msg.style.color = "#ffc107";
+      } else {
+        msg.textContent = "📚 Қайталау қажет. Материалды қайта оқып шығыңыз.";
+        msg.style.color = "#dc3545";
+      }
+      
+      $("resultModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      $("resultModal").style.display = "none";
+    }
+
+    // ============== ТЕСТТІ ТЕКСЕРУ ==============
+    function submitTest() {
+      const submitBtn = $("submitBtn");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Тест тексерілуде...";
+      
+      const totalQuestions = 10;
+      
+      try {
+        if (!allAnswered(totalQuestions)) {
+          alert("⚠️ Барлық сұраққа жауап беріңіз!");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "✅ Тестті аяқтау";
+          return;
+        }
+        
+        let score = 0;
+        for (let i = 1; i <= totalQuestions; i++) {
+          const userAnswer = $("q" + i).value;
+          if (userAnswer === correctAnswers["q" + i]) score++;
+        }
+        
+        saveToLocalStorage(score, totalQuestions);
+        showResults(score, totalQuestions);
+        
+      } catch (err) {
+        console.error("Қате:", err);
+        alert("Қате пайда болды: " + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "✅ Тестті аяқтау";
+      }
+    }
+
+    // ============== ОҚИҒАЛАРДЫ БАЙЛАНЫСТЫРУ ==============
+    document.addEventListener("click", (e) => {
+      const option = e.target.closest(".option");
+      if (!option) return;
+      
+      const questionCard = option.closest(".question-card");
+      if (!questionCard) return;
+      
+      const questionId = questionCard.getAttribute("data-q");
+      if (!questionId) return;
+      
+      questionCard.querySelectorAll(".option").forEach(el => el.classList.remove("selected"));
+      option.classList.add("selected");
+      
+      $(questionId).value = getSelectedValue(option);
+    });
+    
+    $("submitBtn").addEventListener("click", submitTest);
+    $("closeBtn").addEventListener("click", closeModal);
+    
+    $("resultModal").addEventListener("click", (e) => {
+      if (e.target.id === "resultModal") closeModal();
+    });
+    
+    // ============== ПАЙДАЛАНУШЫНЫ ТЕКСЕРУ ==============
+    window.addEventListener("load", () => {
+      const storedUser = localStorage.getItem("currentUser");
+      if (!storedUser) {
+        alert("Пайдаланушы кірмеген! Кіру бетіне өтіңіз.");
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>
