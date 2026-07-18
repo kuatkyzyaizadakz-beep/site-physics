@@ -283,52 +283,75 @@
 
         // Серверден нақты деректерді жүктеп алу функциясы
         async function fetchAdminData() {
-    const tbody = document.getElementById('tableBody');
-    try {
-        const response = await fetch(`${API_URL}/admin/all-results`);
-        if (!response.ok) {
-            throw new Error('Серверден деректерді алу сәтсіз аяқталды');
+            const tbody = document.getElementById('tableBody');
+            try {
+                const response = await fetch(`${API_URL}/admin/all-results`);
+                if (!response.ok) {
+                    throw new Error('Сервер жауап бермеді немесе қате қайтарды');
+                }
+                const data = await response.json();
+
+                // Серверден stats объектісінің келгенін тексеру (Қатеден қорғау)
+                if (data && data.stats) {
+                    document.getElementById('totalStudents').textContent = data.stats.totalStudents ?? 0;
+                    document.getElementById('totalTests').textContent = data.stats.totalTests ?? 0;
+                    document.getElementById('avgScore').textContent = data.stats.avgScore ?? '0%';
+                } else {
+                    console.error("Сервер дұрыс құрылымда дерек қайтармады:", data);
+                }
+
+                // Кестені құрастыру
+                let html = '';
+                if (data && data.results && data.results.length > 0) {
+                    data.results.forEach(item => {
+                        const percent = item.totalQuestions > 0 ? (item.score / item.totalQuestions) * 100 : 0;
+                        let badge = 'badge-low';
+                        if (percent >= 80) badge = 'badge-high';
+                        else if (percent >= 50) badge = 'badge-mid';
+
+                        let formattedDate = 'Белгісіз';
+                        if (item.date && item.date !== 'Белгісіз') {
+                            const d = new Date(item.date);
+                            formattedDate = isNaN(d.getTime()) ? item.date : d.toLocaleDateString('kk-KZ');
+                        }
+
+                        html += `<tr>
+                            <td><strong>${item.name}</strong></td>
+                            <td>${item.email}</td>
+                            <td>${item.testTitle}</td>
+                            <td><span class="badge ${badge}">${item.score}/${item.totalQuestions} (${percent.toFixed(0)}%)</span></td>
+                            <td>${formattedDate}</td>
+                        </tr>`;
+                    });
+                    tbody.innerHTML = html;
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="no-data">📭 Әлі ешқандай оқушы тест тапсырмаған</td></tr>';
+                }
+
+            } catch (error) {
+                console.error("Қате:", error);
+                tbody.innerHTML = `<tr><td colspan="5" class="no-data" style="color: red;">❌ Деректерді жүктеу қатесі: Базамен байланыс орнатылмады</td></tr>`;
+            }
         }
-        const data = await response.json();
 
-        // Серверден stats объектісінің келгенін тексеру (Қатеден қорғау)
-        if (data && data.stats) {
-            document.getElementById('totalStudents').textContent = data.stats.totalStudents || 0;
-            document.getElementById('totalTests').textContent = data.stats.totalTests || 0;
-            document.getElementById('avgScore').textContent = data.stats.avgScore || '0%';
-        } else {
-            console.error("Сервер дұрыс құрылымда дерек қайтармады:", data);
-        }
-
-        // Кестені құрастыру
-        let html = '';
-        if (data.results && data.results.length > 0) {
-            data.results.forEach(item => {
-                const percent = (item.score / item.totalQuestions) * 100;
-                let badge = 'badge-low';
-                if (percent >= 80) badge = 'badge-high';
-                else if (percent >= 50) badge = 'badge-mid';
-
-                const formattedDate = item.date !== 'Белгісіз' ? new Date(item.date).toLocaleDateString('kk-KZ') : 'Белгісіз';
-
-                html += `<tr>
-                    <td><strong>${item.name}</strong></td>
-                    <td>${item.email}</td>
-                    <td>${item.testTitle}</td>
-                    <td><span class="badge ${badge}">${item.score}/${item.totalQuestions} (${percent.toFixed(0)}%)</span></td>
-                    <td>${formattedDate}</td>
-                </tr>`;
+        // Іздеу жолағына арналған фильтр функциясы
+        function filterTable() {
+            const filter = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                if(!row.classList.contains('no-data')) {
+                    row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+                }
             });
-            tbody.innerHTML = html;
-        } else {
-            tbody.innerHTML = '<tr><td colspan="5" class="no-data">📭 Әлі ешқандай оқушы тест тапсырмаған</td></tr>';
         }
 
-    } catch (error) {
-        console.error("Қате:", error);
-        tbody.innerHTML = `<tr><td colspan="5" class="no-data" style="color: red;">❌ Деректерді жүктеу қатесі: Server error</td></tr>`;
-    }
-}
+        function logout() {
+            if (confirm('Шыққыңыз келе ме?')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             checkAdminAccess();
             fetchAdminData();
