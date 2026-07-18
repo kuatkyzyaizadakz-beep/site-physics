@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="kz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Физика Білім Платформасы</title>
+    <link rel="icon" type="image/png" href="лого.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #eaf4fc 0%, #d4e4f5 100%);
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header стилі - user.html-ға ұқсас */
+        .header {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .logo {
+            height: 55px;
+            width: 55px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #1E90FF20;
+            padding: 5px;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-text p {
+            margin: 5px 0 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* Басты бет карточкасы */
+        .welcome-container {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 1px solid #1E90FF20;
+        }
+
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .welcome-container h2 {
+            color: #1E90FF;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .welcome-container p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .login-btn {
+            padding: 14px 35px;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30,144,255,0.3);
+        }
+
+        .register-btn {
+            padding: 14px 35px;
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                height: 50px;
+                width: 50px;
+            }
+            
+            .header-text h1 {
+                font-size: 1.3rem;
+            }
+            
+            .welcome-container {
+                padding: 30px 20px;
+            }
+            
+            .btn-container {
+                gap: 15px;
+            }
+            
+            .login-btn, .register-btn {
+                padding: 12px 25px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <img src="лого.png" alt="Логотип" class="logo" onerror="this.src='https://via.placeholder.com/55?text=Ph'">
+        <div class="header-text">
+            <h1>🔬 Физика Білім Платформасы</h1>
+            <p>9 сынып педагогтарына арналған көмекші құрал</p>
+        </div>
+    </header>
+
+    <main class="content">
+        <div class="welcome-container">
+            <div class="welcome-icon">🔭</div>
+            <h2>Қош келдіңіз!</h2>
+            <p>Физика әлеміне саяхат жасау үшін<br>жүйеге кіріңіз немесе тіркеліңіз.</p>
+            <div class="btn-container">
+                <a href="login.html" class="login-btn">🔐 Кіру</a>
+                <a href="register.html" class="register-btn">📝 Тіркелу</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Егер пайдаланушы кіріп тұрса, dashboard.html-ге бағыттау
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>

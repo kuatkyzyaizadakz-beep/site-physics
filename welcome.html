@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Физика 9-сынып | Қош келдіңіз!</title>
+  <style>
+    body {
+      font-family: 'Times New Roman', serif;
+      background: linear-gradient(135deg, #eaf3ff, #fdfdff);
+      color: #002b5c;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* --- Welcome беті --- */
+    #welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #e3f2fd, #fefefe);
+    }
+
+    #welcome h1 {
+      font-size: 2em;
+      color: #0d47a1;
+      margin-bottom: 15px;
+    }
+
+    #welcome p {
+      max-width: 600px;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+
+    .btn {
+      background: #ffd54f;
+      color: #002b5c;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #ffca28;
+      transform: scale(1.05);
+    }
+
+    /* --- Тіркелу беті --- */
+    #register {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(120deg, #c5e1ff, #eaf3ff);
+    }
+
+    #register h2 {
+      color: #0d47a1;
+      margin-bottom: 20px;
+    }
+
+    #register input {
+      width: 260px;
+      padding: 12px;
+      margin: 8px;
+      border: 1px solid #b0bec5;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    #register button {
+      background: #ffd54f;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      margin-top: 15px;
+      color: #002b5c;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #register button:hover {
+      background: #ffca28;
+      transform: scale(1.05);
+    }
+
+    /* --- Негізгі бет --- */
+    #main {
+      display: none;
+      padding: 40px;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-top: 60px;
+      color: #0d47a1;
+    }
+
+    p {
+      max-width: 700px;
+      margin: 20px auto;
+      line-height: 1.6;
+    }
+
+    .button {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 14px 30px;
+      background: #ffd54f;
+      color: #002b5c;
+      border-radius: 40px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .button:hover {
+      background: #ffca28;
+      transform: scale(1.05);
+    }
+
+    .icons {
+      margin-top: 60px;
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      flex-wrap: wrap;
+    }
+
+    .icon-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 160px;
+      padding: 20px;
+      transition: transform 0.3s;
+    }
+
+    .icon-card:hover {
+      transform: translateY(-10px);
+    }
+
+    .icon-card img {
+      width: 60px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🟢 Welcome беті -->
+  <section id="welcome">
+    <h1>9-сынып физика пәніне арналған<br>электрондық білім беру сайтына қош келдіңіз!</h1>
+    <p>Бұл сайтта сіз физика курсының барлық тақырыптары бойынша теориялық материалдармен, есептермен және зертханалық жұмыстармен таныса аласыз.</p>
+    <button class="btn" onclick="openRegister()">Тіркелу</button>
+  </section>
+
+ 
+
+  <!-- 🔵 Негізгі бет -->
+  <section id="main">
+    <h1>Физика курсына қош келдіңіз!</h1>
+    <p>Сайтта сіз 9-сынып физика пәнінің толық курсын интерактивті түрде меңгере аласыз.</p>
+
+    <a href="register.html" class="button">tirkelu</a>
+
+    <div class="icons">
+      <div class="icon-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/3649/3649610.png" alt="atom">
+        <p>Физикалық құбылыстар</p>
+      </div>
+      <div class="icon-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/2659/2659360.png" alt="magnet">
+        <p>Магнетизм және электр</p>
+      </div>
+      <div class="icon-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/2920/2920340.png" alt="lab">
+        <p>Зертханалық жұмыстар</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+function openRegister() {
+  window.location.href = "register.html";
+}
+</script>
+
+ 
+</body>
+</html>
+

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="kz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пайдаланушы профилі - Физика Білім Платформасы</title>
+    <link rel="icon" type="image/png" href="лого.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #eaf4fc 0%, #d4e4f5 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            height: 55px;
+            width: 55px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #1E90FF20;
+            padding: 5px;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-text p {
+            margin: 5px 0 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30,144,255,0.3);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .logout-btn:hover {
+            box-shadow: 0 5px 15px rgba(220,53,69,0.3);
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .user-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .profile-card {
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff, #f0f8ff);
+        }
+
+        .profile-icon {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            box-shadow: 0 5px 15px rgba(30,144,255,0.3);
+        }
+
+        .stats-card h3,
+        .progress-section h3,
+        .modules-section h3,
+        .tests-card h3,
+        .recent-tests h3 {
+            color: #1E90FF;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #1E90FF;
+            padding-bottom: 8px;
+            font-size: 1.3rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 12px 15px;
+            background: #f0f8ff;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: #e3f0ff;
+            transform: translateX(5px);
+        }
+
+        .stat-item span:first-child {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .stat-item strong {
+            color: #1E90FF;
+            font-size: 1.1rem;
+        }
+
+        .progress-bars {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            background: #f0f0f0;
+            border-radius: 15px;
+            height: 140px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .progress-bar:hover {
+            transform: scale(1.02);
+        }
+
+        .progress-fill {
+            background: linear-gradient(45deg, #1E90FF, #764ba2);
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            transition: height 0.8s ease;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .progress-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #333;
+            font-weight: bold;
+            font-size: 1rem;
+            text-align: center;
+            z-index: 2;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 12px;
+            border-radius: 20px;
+            width: 80%;
+        }
+
+        .modules-grid,
+        .tests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .module-card,
+        .test-card {
+            background: linear-gradient(135deg, #f0f8ff, #e8f4ff);
+            padding: 18px;
+            border-radius: 15px;
+            border-left: 5px solid #1E90FF;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        .module-card:hover,
+        .test-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(30,144,255,0.2);
+        }
+
+        .module-card h4, .test-card h4 {
+            color: #1E90FF;
+            margin-bottom: 10px;
+        }
+
+        .module-progress {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .module-progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #1E90FF, #764ba2);
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .test-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .recent-tests {
+            grid-column: 1 / -1;
+        }
+
+        .test-item {
+            background: linear-gradient(135deg, #f0f8ff, #e8f4ff);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 12px;
+            border-left: 5px solid #28a745;
+            transition: all 0.3s ease;
+        }
+
+        .test-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: #c62828;
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            margin: 50px auto;
+            max-width: 500px;
+        }
+
+        @media (max-width: 768px) {
+            .user-dashboard {
+                grid-template-columns: 1fr;
+            }
+            .progress-bars {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .modules-grid,
+            .tests-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .header-left {
+                flex-direction: column;
+            }
+            .content {
+                padding: 15px;
+            }
+            .card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <img src="лого.png" class="logo" alt="Logo" onerror="this.src='https://via.placeholder.com/55?text=Ph'">
+        <div class="header-text">
+            <h1>🔬 Физика Білім Платформасы</h1>
+            <p>9 сынып педагогтарына арналған көмекші құрал</p>
+        </div>
+    </div>
+    <div class="nav-buttons">
+        <a href="dashboard.html" class="nav-btn">🏠 Басты бет</a>
+        <button class="nav-btn logout-btn" onclick="logout()">🚪 Шығу</button>
+    </div>
+</header>
+
+<main class="content" id="mainContent">
+    <div style="text-align: center; padding: 50px;">
+        <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #1E90FF; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <p style="margin-top: 20px; color: #1E90FF;">Жүктелуде...</p>
+    </div>
+</main>
+
+<style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+// ====================== ТЕСТТЕР ТІЗІМІ ======================
+const modules = [
+    { title: "📚 1-тоқсан", link: "test-1.html" },
+    { title: "📖 2-тоқсан", link: "test-2.html" },
+    { title: "📘 3-тоқсан", link: "test-3.html" },
+    { title: "📗 4-тоқсан", link: "test-4.html" }
+];
+
+const topicTests = [
+    { title: "🎯 1-тоқсан: Кинематика", link: "test-kinematiks.html" },
+    { title: "⭐ 1-тоқсан: Астрономия", link: "test-astr.html" },
+    { title: "⚡ 2-тоқсан: Динамика", link: "test-dinamics.html" },
+    { title: "🔋 3-тоқсан: Сақталу заңдары", link: "test-saqtalu.html" },
+    { title: "🌊 3-тоқсан: Тербелістер мен толқындар", link: "test-waves.html" },
+    { title: "⚛️ 4-тоқсан: Атом құрылысы", link: "test-atom.html" },
+    { title: "☢️ 4-тоқсан: Атом ядросы", link: "test-yadro.html" }
+];
+
+let currentUser = null;
+
+// Пайдаланушыны жүктеу
+function loadUserData() {
+    try {
+        let user = JSON.parse(localStorage.getItem('currentUser'));
+        
+        if (!user || !user.email) {
+            showErrorAndRedirect();
+            return false;
+        }
+        
+        let users = JSON.parse(localStorage.getItem('users') || '[]');
+        const foundUser = users.find(u => u.email === user.email);
+        
+        if (foundUser) {
+            currentUser = foundUser;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        } else {
+            currentUser = user;
+        }
+        
+        if (!currentUser.tests) currentUser.tests = [];
+        if (!currentUser.memberSince) currentUser.memberSince = new Date().toLocaleDateString('kk-KZ');
+        
+        // ЕСКІ НӘТИЖЕЛЕРДІ ТҮЗЕТУ (percent сан болуы керек)
+        if (currentUser.tests.length > 0) {
+            let needsFix = false;
+            currentUser.tests = currentUser.tests.map(t => {
+                if (!t.percent || typeof t.percent === 'string') {
+                    needsFix = true;
+                    t.percent = (t.score / t.totalQuestions) * 100;
+                }
+                return t;
+            });
+            if (needsFix) {
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                let users = JSON.parse(localStorage.getItem('users') || '[]');
+                const idx = users.findIndex(u => u.email === currentUser.email);
+                if (idx !== -1) {
+                    users[idx] = currentUser;
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+            }
+        }
+        
+        renderDashboard();
+        return true;
+    } catch(e) {
+        console.error('Қате:', e);
+        showErrorAndRedirect();
+        return false;
+    }
+}
+
+function showErrorAndRedirect() {
+    const mainContent = document.getElementById('mainContent');
+    mainContent.innerHTML = `
+        <div class="error-message">
+            <h2>⚠️ Пайдаланушы мәліметі жүктелмеді</h2>
+            <p>Қайта кіріп көріңіз.</p>
+            <button class="nav-btn" onclick="location.href='login.html'" style="margin-top:20px;">🔐 Кіру бетіне өту</button>
+        </div>
+    `;
+}
+
+// Бетті көрсету
+function renderDashboard() {
+    const mainContent = document.getElementById('mainContent');
+    
+    // Статистика есептеу
+    const totalTests = currentUser.tests.length;
+    let averagePercent = 0;
+    let bestPercent = 0;
+    
+    if (totalTests > 0) {
+        // Орташа нәтижені есептеу - percent сан екеніне көз жеткізу
+        let validTests = currentUser.tests.filter(t => typeof t.percent === 'number' && !isNaN(t.percent));
+        
+        if (validTests.length > 0) {
+            const totalPercent = validTests.reduce((sum, t) => sum + t.percent, 0);
+            averagePercent = (totalPercent / validTests.length).toFixed(1);
+            
+            // Үздік нәтижені есептеу
+            bestPercent = Math.max(...validTests.map(t => t.percent)).toFixed(1);
+        } else {
+            // Ескі форматтағы тесттер үшін (percent жоқ болса)
+            const totalPercent = currentUser.tests.reduce((sum, t) => sum + ((t.score / t.totalQuestions) * 100), 0);
+            averagePercent = (totalPercent / totalTests).toFixed(1);
+            bestPercent = Math.max(...currentUser.tests.map(t => (t.score / t.totalQuestions) * 100)).toFixed(1);
+        }
+    }
+    
+    mainContent.innerHTML = `
+        <div class="user-dashboard">
+            <div class="card profile-card">
+                <div class="profile-icon">${getAvatarIcon(currentUser.name)}</div>
+                <h2>${escapeHtml(currentUser.name)}</h2>
+                <p style="color: #666;">📧 ${escapeHtml(currentUser.email)}</p>
+                <p style="color: #888; margin-top: 10px; font-size: 0.9rem;">📅 Қосылған: ${currentUser.memberSince}</p>
+            </div>
+
+            <div class="card stats-card">
+                <h3>📊 Менің статистикам</h3>
+                <div class="stat-item">
+                    <span>📝 Жалпы тест саны:</span>
+                    <strong>${totalTests}</strong>
+                </div>
+                <div class="stat-item">
+                    <span>📈 Орташа нәтиже:</span>
+                    <strong>${averagePercent}%</strong>
+                </div>
+                <div class="stat-item">
+                    <span>🏆 Үздік нәтиже:</span>
+                    <strong>${bestPercent}%</strong>
+                </div>
+                <div class="stat-item">
+                    <span>⏱️ Соңғы тест:</span>
+                    <strong>${getLastTestDate()}</strong>
+                </div>
+            </div>
+
+            <div class="card progress-section">
+                <h3>📈 Тоқсан бойынша прогресс</h3>
+                <div class="progress-bars" id="progressBars"></div>
+            </div>
+
+            <div class="card modules-section">
+                <h3>📚 Тоқсан бойынша тесттер</h3>
+                <div class="modules-grid" id="modulesGrid"></div>
+            </div>
+
+            <div class="card tests-card">
+                <h3>🎯 Бөлім бойынша тесттер</h3>
+                <div class="tests-grid" id="testsGrid"></div>
+            </div>
+
+            <div class="card recent-tests">
+                <h3>📋 Соңғы тест нәтижелері</h3>
+                <div id="recentTests"></div>
+            </div>
+        </div>
+    `;
+    
+    renderModulesAndTests();
+    renderProgressBars();
+    renderRecentTests();
+}
+
+function getAvatarIcon(name) {
+    if (!name) return '👤';
+    return name.charAt(0).toUpperCase();
+}
+
+function getLastTestDate() {
+    if (!currentUser.tests.length) return 'Жоқ';
+    return currentUser.tests[currentUser.tests.length - 1].date;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+function renderModulesAndTests() {
+    const modulesGrid = document.getElementById('modulesGrid');
+    if (modulesGrid) {
+        modulesGrid.innerHTML = modules.map(m => `
+            <a href="${m.link}" class="module-card">
+                <h4>${m.title}</h4>
+                <div class="module-progress">
+                    <div class="module-progress-fill" style="width: ${calculateModuleProgress(m.title)}%"></div>
+                </div>
+                <span style="font-size: 0.85rem; color: #666;">${calculateModuleProgress(m.title)}% аяқталды</span>
+                <br>
+                <span class="test-link">📝 Тесті бастау</span>
+            </a>
+        `).join('');
+    }
+    
+    const testsGrid = document.getElementById('testsGrid');
+    if (testsGrid) {
+        testsGrid.innerHTML = topicTests.map(t => `
+            <a href="${t.link}" class="test-card">
+                <h4>${t.title}</h4>
+                <p>❓ 10 сұрақ</p>
+                <span style="font-size: 0.8rem; color: #1E90FF;">▶️ Бастау</span>
+            </a>
+        `).join('');
+    }
+}
+
+function calculateModuleProgress(moduleTitle) {
+    const moduleNum = parseInt(moduleTitle.match(/\d+/)?.[0] || 0);
+    const moduleTests = currentUser.tests.filter(t => t.testTitle.includes(moduleNum + "-тоқсан"));
+    if (moduleTests.length === 0) return 0;
+    
+    const totalScore = moduleTests.reduce((sum, t) => sum + t.score, 0);
+    const totalQuestions = moduleTests.reduce((sum, t) => sum + t.totalQuestions, 0);
+    return Math.round((totalScore / totalQuestions) * 100);
+}
+
+function renderProgressBars() {
+    const progressBars = document.getElementById('progressBars');
+    if (!progressBars) return;
+    
+    const quarters = [1, 2, 3, 4];
+    progressBars.innerHTML = quarters.map(q => {
+        const progress = calculateModuleProgress(`${q}-тоқсан`);
+        return `
+            <div class="progress-bar">
+                <div class="progress-fill" style="height: ${progress}%;"></div>
+                <div class="progress-label">
+                    <strong>${q}-тоқсан</strong><br>
+                    <span style="font-size: 0.9rem;">${progress}%</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderRecentTests() {
+    const container = document.getElementById('recentTests');
+    if (!container) return;
+    
+    if (!currentUser.tests.length) {
+        container.innerHTML = '<p style="text-align: center; color: #888;">📭 Әлі тест нәтижелері жоқ. Жоғарыдан тест таңдаңыз!</p>';
+        return;
+    }
+    
+    container.innerHTML = currentUser.tests.slice().reverse().slice(0, 10).map(t => {
+        const percent = t.percent ? t.percent.toFixed(1) : ((t.score / t.totalQuestions) * 100).toFixed(1);
+        const emoji = percent >= 80 ? '🎉' : percent >= 50 ? '👍' : '📚';
+        return `
+            <div class="test-item">
+                <h4>${emoji} ${escapeHtml(t.testTitle)}</h4>
+                <p>📊 Балл: ${t.score}/${t.totalQuestions} (${percent}%)</p>
+                <small>📅 ${t.date}</small>
+            </div>
+        `;
+    }).join('');
+}
+
+// Шығу функциясы
+function logout() {
+    if (confirm('Шыққыңыз келе ме?')) {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+    }
+}
+
+// Бет жүктелгенде
+document.addEventListener('DOMContentLoaded', loadUserData);
+</script>
+</body>
+</html>

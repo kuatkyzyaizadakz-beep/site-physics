@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3 тоқсан бойынша тест</title>
+  <link rel="icon" type="image/png" href="лого.png" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      background-color: #f5f5f5;
+      color: #253953;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .test-container {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 800px;
+      margin: 0 auto;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .question {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+
+    .question h3 {
+      color: #253953;
+      margin-bottom: 15px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option {
+      padding: 12px;
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      user-select: none;
+    }
+
+    .option:hover {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+
+    .option.selected {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: #253953;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      background: #1a2c42;
+      transform: translateY(-2px);
+    }
+
+    .submit-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-btn:hover {
+      background: #5a67d8;
+    }
+
+    .result-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .score {
+      font-size: 3rem;
+      color: #667eea;
+      margin: 20px 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>3 тоқсан бойынша тест</h1>
+    <p>20 сұрақ | Уақыт: 40 минут</p>
+  </div>
+
+  <div class="test-container">
+    <form id="testForm">
+      <!-- Q1 -->
+      <div class="question" data-q="q1">
+        <h3>1. Тербелмелі қозғалыс дегеніміз:</h3>
+        <div class="options">
+          <div class="option">A) Дененің белгілі бір уақыт аралығында қайталанып отыратын қозғалысы</div>
+          <div class="option">B) Дененің бірқалыпты түзу сызықты қозғалысы</div>
+          <div class="option">C) Дененің үдемелі қозғалысы</div>
+          <div class="option">D) Дененің тек айналмалы қозғалысы</div>
+        </div>
+        <input type="hidden" name="q1" id="q1" />
+      </div>
+
+      <!-- Q2 -->
+      <div class="question" data-q="q2">
+        <h3>2. Тербелісті сипаттайтын негізгі шамалар:</h3>
+        <div class="options">
+          <div class="option">A) Жол, уақыт, жылдамдық</div>
+          <div class="option">B) Масса, көлем, тығыздық</div>
+          <div class="option">C) Күш, энергия, жұмыс</div>
+          <div class="option">D) Амплитуда, период, жиілік</div>
+        </div>
+        <input type="hidden" name="q2" id="q2" />
+      </div>
+
+      <!-- Q3 -->
+      <div class="question" data-q="q3">
+        <h3>3. Еркін тербелістер деп қандай тербелістер аталады?</h3>
+        <div class="options">
+          <div class="option">A) Сыртқы периодты күш әсерінен болатын</div>
+          <div class="option">B) Үйкеліс әсерінен тоқтайтын</div>
+          <div class="option">C) Сыртқы күшсіз, бастапқы ауытқудан кейін болатын </div>
+          <div class="option">D) Жылдамдығы тұрақты</div>
+        </div>
+        <input type="hidden" name="q3" id="q3" />
+      </div>
+
+      <!-- Q4 -->
+      <div class="question" data-q="q4">
+        <h3>4. Өшетін тербелістердің негізгі себебі:</h3>
+        <div class="options">
+          <div class="option">A) Ауырлық күші</div>
+          <div class="option">B) Серпімділік күші</div>
+          <div class="option">C) Амплитуданың үлкендігі</div>
+          <div class="option">D) Үйкеліс пен энергия шығыны</div>
+        </div>
+        <input type="hidden" name="q4" id="q4" />
+      </div>
+
+      <!-- Q5 -->
+      <div class="question" data-q="q5">
+        <h3>Резонанс құбылысы қашан байқалады?</h3>
+        <div class="options">
+          <div class="option">A) Тербеліс жиілігі нөл болғанда</div>
+          <div class="option">B) Еріксіз тербеліс жиілігі мен меншікті жиілік тең болғанда </div>
+          <div class="option">C) Үйкеліс болмағанда</div>
+          <div class="option">D) Амплитуда азайғанда</div>
+        </div>
+        <input type="hidden" name="q5" id="q5" />
+      </div>
+
+      <!-- Q6 -->
+      <div class="question" data-q="q6">
+        <h3>6. Математикалық маятниктің периоды тәуелді:</h3>
+        <div class="options">
+          <div class="option">A) Жіп ұзындығы мен еркін түсу үдеуіне</div>
+          <div class="option">B) Жүктің массасына</div>
+          <div class="option">C) Амплитудаға</div>
+          <div class="option">D) Жүктің көлеміне</div>
+        </div>
+        <input type="hidden" name="q6" id="q6" />
+      </div>
+
+      <!-- Q7 -->
+      <div class="question" data-q="q7">
+        <h3>7. Серіппелі маятниктің тербеліс периоды:</h3>
+        <div class="options">
+          <div class="option">A) T=2π√(l/g)</div>
+          <div class="option">B) T=1/ν</div>
+          <div class="option">C) T=2π√(m/k)</div>
+          <div class="option">D) F = T=m/k</div>
+        </div>
+        <input type="hidden" name="q7" id="q7" />
+      </div>
+
+      <!-- Q8 -->
+      <div class="question" data-q="q8">
+        <h3>8. Тербелмелі контурда еркін электромагниттік тербелістердің периоды (Томсон формуласы):</h3>
+        <div class="options">
+          <div class="option">A) T=  1/LC</div>
+          <div class="option">B) T=2π√LC</div>
+          <div class="option">C) T=LC</div>
+          <div class="option">D) T=2πLC</div>
+        </div>
+        <input type="hidden" name="q8" id="q8" />
+      </div>
+
+      <!-- Q9 -->
+      <div class="question" data-q="q9">
+        <h3>9. Еріксіз электромагниттік тербелістерге мысал:</h3>
+        <div class="options">
+          <div class="option">A) Тербелмелі контур</div>
+          <div class="option">B) Серіппелі маятник</div>
+          <div class="option">C) Математикалық маятник</div>
+          <div class="option">D) Магнит өрісінде айналатын рама</div>
+        </div>
+        <input type="hidden" name="q9" id="q9" />
+      </div>
+
+      <!-- Q10 -->
+      <div class="question" data-q="q10">
+        <h3>10. Тербеліс кезінде энергияның түрленуі:</h3>
+        <div class="options">
+          <div class="option">A) Энергия жойылады</div>
+          <div class="option">B) Тек кинетикалық энергия бар</div>
+          <div class="option">C) Тек потенциалдық энергия бар</div>
+          <div class="option">D) Кинетикалық және потенциалдық энергия бір-біріне айналады</div>
+        </div>
+        <input type="hidden" name="q10" id="q10" />
+      </div>
+
+        <div class="question" data-q="q11">
+        <h3>11. Математикалық маятниктің ұзындығы 1 м, g=10 м/с2. Периоды:</h3>
+        <div class="options">
+          <div class="option">A) 1 с</div>
+          <div class="option">B) 2 с</div>
+          <div class="option">C) 3 с</div>
+          <div class="option">D) 4 с</div>
+        </div>
+        <input type="hidden" name="q11" id="q11" />
+      </div>
+
+         <div class="question" data-q="q12">
+        <h3> 12.Серіппелі маятник: m=1 кг, k=100 Н/м. Период:</h3>
+        <div class="options">
+          <div class="option">A) 0,2 с</div>
+          <div class="option">B) 0,63 с</div>
+          <div class="option">C) 1,0 с</div>
+          <div class="option">D) 2,0 с</div>
+        </div>
+        <input type="hidden" name="q12" id="q12" />
+      </div>
+
+          <div class="question" data-q="q13">
+        <h3> 13. Тербеліс жиілігі 4 Гц. Периоды:</h3>
+        <div class="options">
+          <div class="option">A) 0,25 с</div>
+          <div class="option">B) 0,5 с</div>
+          <div class="option">C) 2 с</div>
+          <div class="option">D) 4 с</div>
+        </div>
+        <input type="hidden" name="q13" id="q13" />
+      </div>
+
+            <div class="question" data-q="q14">
+        <h3> 14.	Маятник 30 секундта 15 тербеліс жасады. Жиілік:</h3>
+        <div class="options">
+          <div class="option">A) 0,25 Гц</div>
+          <div class="option">B) 0,5 Гц</div>
+          <div class="option">C) 1 Гц</div>
+          <div class="option">D) 1 Гц</div>
+        </div>
+        <input type="hidden" name="q14" id="q14" />
+      </div>
+
+          <div class="question" data-q="q15"> <h3> 15.	LCконтурда L=0,25 Гн, C=4 мкФ. Период (шамамен):</h3>
+        <div class="options">
+          <div class="option">A) 0,6 с</div>
+          <div class="option">B) 0,02 с</div>
+          <div class="option">C) 0,006 с </div>
+          <div class="option">D) 2 с</div>
+        </div>
+        <input type="hidden" name="q15" id="q15" />
+      </div>
+
+        <div class="question" data-q="q16">
+        <h3> 16.	Тербелмелі контурда ток күші максимум болғанда:</h3>
+        <div class="options">
+          <div class="option">A) Конденсатор толық зарядталған</div>
+          <div class="option">B) Электр өрісі максимум </div>
+          <div class="option">C) Тербеліс тоқтайды</div>
+          <div class="option">D) Магнит өрісінің энергиясы максимум</div>
+        </div>
+        <input type="hidden" name="q16" id="q16" />
+      </div>
+
+      <div class="question" data-q="q17">
+        <h3> 17.	Дыбыс дегеніміз:</h3>
+        <div class="options">
+          <div class="option">A) Серпімді ортада таралатын механикалық толқын</div>
+          <div class="option">B) Электромагниттік толқын </div>
+          <div class="option">C) Вакуумда таралатын толқын</div>
+          <div class="option">D) Тек ауада таралатын құбылыс</div>
+        </div>
+        <input type="hidden" name="q17" id="q17" />
+      </div>
+
+       <div class="question" data-q="q18">
+        <h3> 18.	Беттік толқындардың таралу жылдамдығы тәуелді:</h3>
+        <div class="options">
+          <div class="option">A) Тек жиілікке</div>
+          <div class="option">B) Тек толқын амплитудасына </div>
+          <div class="option">C) Толқын ұзындығы мен орта қасиетіне</div>
+          <div class="option">D) Тек уақытқа</div>
+        </div>
+        <input type="hidden" name="q18" id="q18" />
+      </div>
+
+       <div class="question" data-q="q19">
+        <h3> 19.	Ультрадыбыс жиілігі: </h3>
+        <div class="options">
+          <div class="option">A) 20 Гц-тен төмен </div>
+          <div class="option">B) 20–20 000 Гц</div>
+          <div class="option">C) Кез келген жиілік</div>
+          <div class="option">D) 20 000 Гц-тен жоғары</div>
+        </div>
+        <input type="hidden" name="q19" id="q19" />
+      </div>
+
+        <div class="question" data-q="q20">
+        <h3> 20.	Электромагниттік толқындардың маңызды қасиеті: </h3>
+        <div class="options">
+          <div class="option">A) Тек ортада таралады </div>
+          <div class="option">B) Вакуумда тарала алады </div>
+          <div class="option">C) Дыбыс толқыны болып табылады</div>
+          <div class="option">D) Тек қатты денелерде таралады</div>
+        </div>
+        <input type="hidden" name="q20" id="q20" />
+      </div>
+
+      <button type="button" class="submit-btn" id="submitBtn">Тестті аяқтау</button>
+    </form>
+
+    <div class="nav-buttons">
+      <a href="user.html" class="nav-btn">Профильге оралу</a>
+      <a href="dashboard.html" class="nav-btn">Басты бет</a>
+    </div>
+  </div>
+
+  <!-- Result Modal -->
+  <div class="result-modal" id="resultModal" aria-hidden="true">
+    <div class="modal-content">
+      <h2>Тест нәтижесі!</h2>
+      <div class="score" id="finalScore">0/10</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <p id="resultMessage"></p>
+      <div class="nav-buttons" style="justify-content:center; margin-top:20px;">
+        <button class="nav-btn" type="button" id="closeBtn">Жабу</button>
+        <a href="user.html" class="nav-btn">Профильге оралу</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // CONFIG
+    // =========================
+    const API_BASE = "http://localhost:3001";
+
+    // If your localStorage contains userId separately, use it.
+    // Otherwise you can keep token and change loadUserData to /user/me with Authorization header.
+    const STORAGE = {
+      tokenKey: "token",
+      userIdKey: "userId"
+    };
+
+    const correctAnswers = {
+      q1: "A",
+      q2: "D",
+      q3: "C",
+      q4: "D",
+      q5: "B",
+      q6: "A",
+      q7: "C",
+      q8: "B",
+      q9: "D",
+      q10: "D",
+      q11: "B",
+      q12: "B",
+      q13: "A",
+      q14: "B",
+      q15: "C",
+      q16: "D",
+      q17: "A",
+      q18: "C",
+      q19: "D",
+      q20: "B"
+    };
+
+    // =========================
+    // STATE
+    // =========================
+    let currentUser = null;
+
+    // =========================
+    // HELPERS
+    // =========================
+    function $(id) { return document.getElementById(id); }
+
+    function setLoading(btn, loading) {
+      btn.disabled = loading;
+      btn.textContent = loading ? "Тест тексерілуде..." : "Тестті аяқтау";
+    }
+
+    function getSelectedValueFromOption(optionEl) {
+      // expects "A) ..." format
+      const text = optionEl.textContent.trim();
+      return text.length ? text.charAt(0) : "";
+    }
+
+    function allAnswered(total) {
+      for (let i = 1; i <= total; i++) {
+        const v = $("q" + i).value;
+        if (!v) return false;
+      }
+      return true;
+    }
+
+    async function loadUserDataById(userId) {
+      const res = await fetch(`${API_BASE}/user/${encodeURIComponent(userId)}`);
+      if (!res.ok) throw new Error("Failed to load user by id");
+      return res.json();
+    }
+
+    document.addEventListener("click", (e) => {
+      const option = e.target.closest(".option");
+      if (!option) return;
+
+      const question = option.closest(".question");
+      if (!question) return;
+
+      const questionId = question.getAttribute("data-q"); 
+      if (!questionId) return;
+
+      question.querySelectorAll(".option").forEach(el => el.classList.remove("selected"));
+
+   
+      option.classList.add("selected");
+
+ 
+      $(questionId).value = getSelectedValueFromOption(option);
+    });
+
+
+    $("submitBtn").addEventListener("click", submitTest);
+
+    async function submitTest() {
+      const submitBtn = $("submitBtn");
+      setLoading(submitBtn, true);
+
+      const totalQuestions = 10;
+
+      try {
+        // Ensure user loaded
+        if (!currentUser || !currentUser._id) {
+          alert("Пайдаланушы мәліметі жүктелмеді. Қайта кіріп көріңіз.");
+          return;
+        }
+
+        // Validate answers (optional but recommended)
+        if (!allAnswered(totalQuestions)) {
+          alert("Барлық сұраққа жауап беріңіз!");
+          return;
+        }
+
+        // Calculate score
+        let score = 0;
+        for (let i = 1; i <= totalQuestions; i++) {
+          const q = "q" + i;
+          const userAnswer = $(q).value;
+          if (userAnswer === correctAnswers[q]) score++;
+        }
+
+        // Save test results
+        const saveRes = await fetch(`${API_BASE}/save-test`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: currentUser._id,
+            toqsan: 1,
+            module: "kinematika",
+            testName: "Кинематика тесті - 1 тоқсан",
+            score,
+            totalQuestions
+          })
+        });
+
+        if (!saveRes.ok) {
+          const txt = await saveRes.text().catch(() => "");
+          throw new Error("Save failed: " + txt);
+        }
+
+        showResults(score, totalQuestions);
+      } catch (err) {
+        console.error(err);
+        alert("Қате пайда болды. Серверді тексеріңіз (save-test немесе user endpoints).");
+      } finally {
+        setLoading(submitBtn, false);
+      }
+    }
+
+
+    function showResults(score, totalQuestions) {
+      const percentage = (score / totalQuestions) * 100;
+
+      $("finalScore").textContent = `${score}/${totalQuestions}`;
+      $("progressFill").style.width = `${percentage}%`;
+
+      const msg = $("resultMessage");
+      if (percentage >= 80) {
+        msg.textContent = "Тамаша! Сіз материалды жақсы білесіз!";
+        msg.style.color = "#28a745";
+      } else if (percentage >= 60) {
+        msg.textContent = "Жақсы! Бірақ әлі үйрену керек.";
+        msg.style.color = "#ffc107";
+      } else {
+        msg.textContent = "Қайталау қажет. Материалды қайта оқып шығыңыз.";
+        msg.style.color = "#dc3545";
+      }
+
+      $("resultModal").style.display = "flex";
+      $("resultModal").setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+      $("resultModal").style.display = "none";
+      $("resultModal").setAttribute("aria-hidden", "true");
+    }
+
+    $("closeBtn").addEventListener("click", closeModal);
+
+    // close on background click
+    $("resultModal").addEventListener("click", (e) => {
+      if (e.target.id === "resultModal") closeModal();
+    });
+
+    // =========================
+    // INIT
+    // =========================
+    window.addEventListener("load", async () => {
+      // OPTION A (recommended): store userId separately
+      const userId = localStorage.getItem(STORAGE.userIdKey);
+      const token = localStorage.getItem(STORAGE.tokenKey);
+
+      // If you only have token and NO userId, you must change backend to /user/me and send Authorization.
+      if (!userId && !token) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        if (userId) {
+          currentUser = await loadUserDataById(userId);
+        } else {
+          // Fallback: try token as userId (ONLY if your token is actually the userId)
+          currentUser = await loadUserDataById(token);
+        }
+      } catch (e) {
+        console.error("Error loading user data:", e);
+        // If user not found / invalid token -> redirect
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

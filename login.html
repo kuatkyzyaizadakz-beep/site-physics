@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="kz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кіру - Физика Білім Платформасы</title>
+    <link rel="icon" type="image/png" href="лого.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #eaf4fc 0%, #d4e4f5 100%);
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .logo {
+            height: 55px;
+            width: 55px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #1E90FF20;
+            padding: 5px;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-text p {
+            margin: 5px 0 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 1px solid #1E90FF20;
+        }
+
+        .login-container h2 {
+            text-align: center;
+            color: #1E90FF;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1E90FF;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(30,144,255,0.15);
+        }
+
+        .login-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30,144,255,0.3);
+        }
+
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.95rem;
+            color: #718096;
+        }
+
+        .register-link a {
+            color: #1E90FF;
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+
+        .register-link a:hover {
+            color: #0066cc;
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                height: 50px;
+                width: 50px;
+            }
+            
+            .header-text h1 {
+                font-size: 1.3rem;
+            }
+            
+            .login-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <img src="лого.png" alt="Логотип" class="logo" onerror="this.src='https://via.placeholder.com/55?text=Ph'">
+        <div class="header-text">
+            <h1>🔬 Физика Білім Платформасы</h1>
+            <p>9 сынып педагогтарына арналған көмекші құрал</p>
+        </div>
+    </header>
+
+    <main class="content">
+        <div class="login-container">
+            <h2>🔐 Жүйеге кіру</h2>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="email">📧 Email:</label>
+                    <input type="email" id="email" placeholder="Email енгізіңіз" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">🔒 Құпия сөз:</label>
+                    <input type="password" id="password" placeholder="Құпия сөзді енгізіңіз" required>
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">Кіру</button>
+            </form>
+            
+            <div class="register-link">
+                Аккаунтыңыз жоқ па? <a href="register.html">📝 Тіркелу</a>
+            </div>
+            <div id="message"></div>
+        </div>
+    </main>
+
+    <script>
+        // АДМИННЫҢ EMAIL ЖӘНЕ ПАРОЛІ
+        const ADMIN_EMAIL = "kuatkyzyaizada1@gmail.com";
+        const ADMIN_PASSWORD = "admin123";
+        
+        // Пайдаланушыларды алу (егер админ жоқ болса, автоматты түрде қосу)
+        function initializeUsers() {
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            const adminExists = users.find(u => u.email === ADMIN_EMAIL);
+            
+            if (!adminExists) {
+                const adminUser = {
+                    name: "Администратор",
+                    email: ADMIN_EMAIL,
+                    password: ADMIN_PASSWORD,
+                    memberSince: new Date().toLocaleDateString('kk-KZ'),
+                    tests: [],
+                    isAdmin: true
+                };
+                users.push(adminUser);
+                localStorage.setItem('users', JSON.stringify(users));
+                console.log("✅ Админ аккаунты автоматты түрде қосылды!");
+            }
+            
+            return users;
+        }
+        
+        // Кіру функциясы
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const loginBtn = document.getElementById('loginBtn');
+            const msgDiv = document.getElementById('message');
+            
+            if (!email || !password) {
+                msgDiv.innerHTML = '<div class="error-message">⚠️ Email және құпия сөзді толтырыңыз!</div>';
+                return;
+            }
+            
+            const users = initializeUsers();
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (!user) {
+                msgDiv.innerHTML = '<div class="error-message">❌ Email немесе құпия сөз дұрыс емес!</div>';
+            } else {
+                if (!user.tests) user.tests = [];
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                
+                msgDiv.innerHTML = '<div style="color: green; background: #e8f5e9; padding: 12px; border-radius: 12px;">✅ Сәтті кірдіңіз! Бағытталуда...</div>';
+                
+                setTimeout(() => {
+                    // Егер АДМИН болса -> admin.html, әйтпесе -> dashboard.html
+                    if (email === ADMIN_EMAIL) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                }, 1000);
+            }
+        }
+        
+        // Бет жүктелгенде, егер пайдаланушы кіріп тұрса
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeUsers();
+            
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    if (user.email === ADMIN_EMAIL) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } catch(e) {
+                    console.error('Қате:', e);
+                }
+            }
+        });
+        
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    </script>
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3 тоқсан бойынша тест</title>
+  <link rel="icon" type="image/png" href="лого.png" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      background-color: #f5f5f5;
+      color: #253953;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .test-container {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 800px;
+      margin: 0 auto;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .question {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+    }
+
+    .question h3 {
+      color: #253953;
+      margin-bottom: 15px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option {
+      padding: 12px;
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      user-select: none;
+    }
+
+    .option:hover {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+
+    .option.selected {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: #253953;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      background: #1a2c42;
+      transform: translateY(-2px);
+    }
+
+    .submit-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-btn:hover {
+      background: #5a67d8;
+    }
+
+    .result-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .score {
+      font-size: 3rem;
+      color: #667eea;
+      margin: 20px 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>3 тоқсан бойынша тест</h1>
+    <p>20 сұрақ | Уақыт: 40 минут</p>
+  </div>
+
+  <div class="test-container">
+    <form id="testForm">
+      <!-- Q1 -->
+      <div class="question" data-q="q1">
+        <h3>1. Жылулық сәулелену дегеніміз не?</h3>
+        <div class="options">
+          <div class="option">A) Денелердің тек жарық шығаруы</div>
+          <div class="option">B) Денелердің температурасына байланысты сәуле шығаруы</div>
+          <div class="option">C) Радиоактивті сәуле шығару</div>
+          <div class="option">D) Тек Күннің сәуле шығаруы</div>
+        </div>
+        <input type="hidden" name="q1" id="q1" />
+      </div>
+
+      <!-- Q2 -->
+      <div class="question" data-q="q2">
+        <h3>2. Қызған дененің температурасы артқан сайын оның сәулеленуі қалай өзгереді?</h3>
+        <div class="options">
+          <div class="option">A) Әлсірейді</div>
+          <div class="option">B) Өзгермейді</div>
+          <div class="option">C) Күшейеді</div>
+          <div class="option">D) Толық тоқтайды</div>
+        </div>
+        <input type="hidden" name="q2" id="q2" />
+      </div>
+
+      <!-- Q3 -->
+      <div class="question" data-q="q3">
+        <h3>3. Планк гипотезасының мағынасы:</h3>
+        <div class="options">
+          <div class="option">A) Энергия кванттармен шығарылады </div>
+          <div class="option">B) Жарық тек толқын</div>
+          <div class="option">C) Энергия үздіксіз таралады </div>
+          <div class="option">D) Жарық тек бөлшек</div>
+        </div>
+        <input type="hidden" name="q3" id="q3" />
+      </div>
+
+      <!-- Q4 -->
+      <div class="question" data-q="q4">
+        <h3>4. Жарық кванттары деп нені айтамыз?</h3>
+        <div class="options">
+          <div class="option">A) Электрондарды</div>
+          <div class="option">B) Фотондарды</div>
+          <div class="option">C) Протондарды</div>
+          <div class="option">D) Нейтрондарды</div>
+        </div>
+        <input type="hidden" name="q4" id="q4" />
+      </div>
+
+      <!-- Q5 -->
+      <div class="question" data-q="q5">
+        <h3>Рентген сәулелері қандай сәулелерге жатады?</h3>
+        <div class="options">
+          <div class="option">A) Механикалық</div>
+          <div class="option">B) Дыбыстық </div>
+          <div class="option">C) Көрінетін жарық</div>
+          <div class="option">D) Электромагниттік</div>
+        </div>
+        <input type="hidden" name="q5" id="q5" />
+      </div>
+
+      <!-- Q6 -->
+      <div class="question" data-q="q6">
+        <h3>6. Радиоактивтілік дегеніміз:</h3>
+        <div class="options">
+          <div class="option">A) Электрондардың қозғалысы</div>
+          <div class="option">B) Атом ядросының өздігінен сәуле шығаруы</div>
+          <div class="option">C) Жарықтың шағылуы</div>
+          <div class="option">D) Жылулық құбылыс</div>
+        </div>
+        <input type="hidden" name="q6" id="q6" />
+      </div>
+
+      <!-- Q7 -->
+      <div class="question" data-q="q7">
+        <h3>7. Резерфорд тәжірибесі нені дәлелдеді?</h3>
+        <div class="options">
+          <div class="option">A) Атомда ядро бар </div>
+          <div class="option">B) Атом біртекті</div>
+          <div class="option">C) Электрондар жоқ</div>
+          <div class="option">D) Атом тек протоннан тұрады</div>
+        </div>
+        <input type="hidden" name="q7" id="q7" />
+      </div>
+
+      <!-- Q8 -->
+      <div class="question" data-q="q8">
+        <h3>8. Атом ядросының құрамы:</h3>
+        <div class="options">
+          <div class="option">A) Электрондар</div>
+          <div class="option">B) Протондар мен нейтрондар</div>
+          <div class="option">C) Электрондар мен протондар</div>
+          <div class="option">D) Тек нейтрондар</div>
+        </div>
+        <input type="hidden" name="q8" id="q8" />
+      </div>
+
+      <!-- Q9 -->
+      <div class="question" data-q="q9">
+        <h3>9. Ядролық күштердің ерекшелігі:</h3>
+        <div class="options">
+          <div class="option">A) Ұзақ қашықтықта әсер етеді</div>
+          <div class="option">B) Өте әлсіз</div>
+          <div class="option">C) Қысқа қашықтықта әсер етеді</div>
+          <div class="option">D) Электр зарядына тәуелді</div>
+        </div>
+        <input type="hidden" name="q9" id="q9" />
+      </div>
+
+      <!-- Q10 -->
+      <div class="question" data-q="q10">
+        <h3>10. Ядролық физикада жиі қолданылатын энергия бірлігі:</h3>
+        <div class="options">
+          <div class="option">A) Дж</div>
+          <div class="option">B) Вт</div>
+          <div class="option">C) Кл</div>
+          <div class="option">D) электрон-вольт (эВ)</div>
+        </div>
+        <input type="hidden" name="q10" id="q10" />
+      </div>
+
+        <div class="question" data-q="q11">
+        <h3>11. Радиоактивті сәулелердің қайсысы ең өтімді?</h3>
+        <div class="options">
+          <div class="option">A) α-сәуле</div>
+          <div class="option">B) β-сәуле</div>
+          <div class="option">C) γ-сәуле</div>
+          <div class="option">D) Жарық сәулесі</div>
+        </div>
+        <input type="hidden" name="q11" id="q11" />
+      </div>
+
+         <div class="question" data-q="q12">
+        <h3> 12.Радиоактивті ыдырау:</h3>
+        <div class="options">
+          <div class="option">A) Қатаң уақытпен жүреді</div>
+          <div class="option">B) Кездейсоқ (ықтималдық) процесс</div>
+          <div class="option">C) Тек қыздырғанда болады</div>
+          <div class="option">D) Тек сыртқы күш әсерінен жүреді</div>
+        </div>
+        <input type="hidden" name="q12" id="q12" />
+      </div>
+
+          <div class="question" data-q="q13">
+        <h3> 13. Радиоактивті заттың жартылай ыдырау периоды 5 күн. 10 күннен кейін заттың мөлшері:</h3>
+        <div class="options">
+          <div class="option">A) Өзгермейді</div>
+          <div class="option">B) 2 есе азаяды</div>
+          <div class="option">C) 4 есе артады</div>
+          <div class="option">D) 4 есе азаяды </div>
+        </div>
+        <input type="hidden" name="q13" id="q13" />
+      </div>
+
+            <div class="question" data-q="q14">
+        <h3> 14.	Жартылай ыдырау периоды нені көрсетеді?</h3>
+        <div class="options">
+          <div class="option">A) Барлық ядролардың ыдырау уақытын</div>
+          <div class="option">B) Ядролардың толық жойылуын</div>
+          <div class="option">C) Ядролардың жартысының ыдырау уақытын</div>
+          <div class="option">D) Бір ядроның өмір сүру уақытын</div>
+        </div>
+        <input type="hidden" name="q14" id="q14" />
+      </div>
+
+          <div class="question" data-q="q15"> 
+          <h3> 15.	Массалар ақауы дегеніміз:</h3>
+        <div class="options">
+          <div class="option">A) Ядро массасының үлкен болуы</div>
+          <div class="option">B) Нуклондар массалары қосындысының ядро массасынан артық болуы</div>
+          <div class="option">C) Электрон массасының артық болуы </div>
+          <div class="option">D) Ядроның бұзылуы</div>
+        </div>
+        <input type="hidden" name="q15" id="q15" />
+      </div>
+
+        <div class="question" data-q="q16">
+        <h3> 16.	Тербелмелі контурда ток күші максимум болғанда:</h3>
+        <div class="options">
+          <div class="option">A) Ядроны толық ажыратуға қажетті энергия </div>
+          <div class="option">B) Ядроны ұстауға қажет энергия </div>
+          <div class="option">C) Электрон энергиясы</div>
+          <div class="option">D) Жылулық энергия</div>
+        </div>
+        <input type="hidden" name="q16" id="q16" />
+      </div>
+
+      <div class="question" data-q="q17">
+        <h3> 17.	Ауыр ядролар бөлінгенде:</h3>
+        <div class="options">
+          <div class="option">A) Энергия жұтылады</div>
+          <div class="option">B) Энергия бөлінеді </div>
+          <div class="option">C) Энергия өзгермейді</div>
+          <div class="option">D) Жарық қана шығады</div>
+        </div>
+        <input type="hidden" name="q17" id="q17" />
+      </div>
+
+       <div class="question" data-q="q18">
+        <h3> 18.	Ядролық реактордың қызметі:</h3>
+        <div class="options">
+          <div class="option">A) Радиация тарату</div>
+          <div class="option">B) Ядролық энергияны басқару </div>
+          <div class="option">C) Ядроларды жою</div>
+          <div class="option">D) Атомдарды бөлу</div>
+        </div>
+        <input type="hidden" name="q18" id="q18" />
+      </div>
+
+       <div class="question" data-q="q19">
+        <h3> 19.Резерфорд тәжірибесінде қандай сәуле қолданылды?</h3>
+        <div class="options">
+          <div class="option">A) α-сәуле </div>
+          <div class="option">B) β-сәуле</div>
+          <div class="option">C) γ-сәуле</div>
+          <div class="option">D) Рентген сәулесі</div>
+        </div>
+        <input type="hidden" name="q19" id="q19" />
+      </div>
+
+        <div class="question" data-q="q20">
+        <h3> 20.Ғылыми-техникалық өркениет пен экологиялық мәдениеттің байланысы нені білдіреді? </h3>
+        <div class="options">
+          <div class="option">A) Табиғатты шексіз пайдалану </div>
+          <div class="option">B) Ғылым дамыса, экология маңызды емес </div>
+          <div class="option">C) Техниканың дамуы экологияға әсер етпейді</div>
+          <div class="option">D) Ғылым мен техниканы табиғатты қорғаумен үйлестіру қажеттігін</div>
+        </div>
+        <input type="hidden" name="q20" id="q20" />
+      </div>
+
+      <button type="button" class="submit-btn" id="submitBtn">Тестті аяқтау</button>
+    </form>
+
+    <div class="nav-buttons">
+      <a href="user.html" class="nav-btn">Профильге оралу</a>
+      <a href="dashboard.html" class="nav-btn">Басты бет</a>
+    </div>
+  </div>
+
+  <!-- Result Modal -->
+  <div class="result-modal" id="resultModal" aria-hidden="true">
+    <div class="modal-content">
+      <h2>Тест нәтижесі!</h2>
+      <div class="score" id="finalScore">0/10</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <p id="resultMessage"></p>
+      <div class="nav-buttons" style="justify-content:center; margin-top:20px;">
+        <button class="nav-btn" type="button" id="closeBtn">Жабу</button>
+        <a href="user.html" class="nav-btn">Профильге оралу</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // CONFIG
+    // =========================
+    const API_BASE = "http://localhost:3001";
+
+    // If your localStorage contains userId separately, use it.
+    // Otherwise you can keep token and change loadUserData to /user/me with Authorization header.
+    const STORAGE = {
+      tokenKey: "token",
+      userIdKey: "userId"
+    };
+
+    const correctAnswers = {
+      q1: "B",
+      q2: "C",
+      q3: "A",
+      q4: "B",
+      q5: "D",
+      q6: "B",
+      q7: "A",
+      q8: "B",
+      q9: "C",
+      q10: "D",
+      q11: "C",
+      q12: "B",
+      q13: "D",
+      q14: "C",
+      q15: "B",
+      q16: "A",
+      q17: "B",
+      q18: "B",
+      q19: "A",
+      q20: "D"
+    };
+
+    // =========================
+    // STATE
+    // =========================
+    let currentUser = null;
+
+    // =========================
+    // HELPERS
+    // =========================
+    function $(id) { return document.getElementById(id); }
+
+    function setLoading(btn, loading) {
+      btn.disabled = loading;
+      btn.textContent = loading ? "Тест тексерілуде..." : "Тестті аяқтау";
+    }
+
+    function getSelectedValueFromOption(optionEl) {
+      // expects "A) ..." format
+      const text = optionEl.textContent.trim();
+      return text.length ? text.charAt(0) : "";
+    }
+
+    function allAnswered(total) {
+      for (let i = 1; i <= total; i++) {
+        const v = $("q" + i).value;
+        if (!v) return false;
+      }
+      return true;
+    }
+
+    async function loadUserDataById(userId) {
+      const res = await fetch(`${API_BASE}/user/${encodeURIComponent(userId)}`);
+      if (!res.ok) throw new Error("Failed to load user by id");
+      return res.json();
+    }
+
+    document.addEventListener("click", (e) => {
+      const option = e.target.closest(".option");
+      if (!option) return;
+
+      const question = option.closest(".question");
+      if (!question) return;
+
+      const questionId = question.getAttribute("data-q"); 
+      if (!questionId) return;
+
+      question.querySelectorAll(".option").forEach(el => el.classList.remove("selected"));
+
+   
+      option.classList.add("selected");
+
+ 
+      $(questionId).value = getSelectedValueFromOption(option);
+    });
+
+
+    $("submitBtn").addEventListener("click", submitTest);
+
+    async function submitTest() {
+      const submitBtn = $("submitBtn");
+      setLoading(submitBtn, true);
+
+      const totalQuestions = 10;
+
+      try {
+        // Ensure user loaded
+        if (!currentUser || !currentUser._id) {
+          alert("Пайдаланушы мәліметі жүктелмеді. Қайта кіріп көріңіз.");
+          return;
+        }
+
+        // Validate answers (optional but recommended)
+        if (!allAnswered(totalQuestions)) {
+          alert("Барлық сұраққа жауап беріңіз!");
+          return;
+        }
+
+        // Calculate score
+        let score = 0;
+        for (let i = 1; i <= totalQuestions; i++) {
+          const q = "q" + i;
+          const userAnswer = $(q).value;
+          if (userAnswer === correctAnswers[q]) score++;
+        }
+
+        // Save test results
+        const saveRes = await fetch(`${API_BASE}/save-test`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: currentUser._id,
+            toqsan: 1,
+            module: "kinematika",
+            testName: "Кинематика тесті - 1 тоқсан",
+            score,
+            totalQuestions
+          })
+        });
+
+        if (!saveRes.ok) {
+          const txt = await saveRes.text().catch(() => "");
+          throw new Error("Save failed: " + txt);
+        }
+
+        showResults(score, totalQuestions);
+      } catch (err) {
+        console.error(err);
+        alert("Қате пайда болды. Серверді тексеріңіз (save-test немесе user endpoints).");
+      } finally {
+        setLoading(submitBtn, false);
+      }
+    }
+
+
+    function showResults(score, totalQuestions) {
+      const percentage = (score / totalQuestions) * 100;
+
+      $("finalScore").textContent = `${score}/${totalQuestions}`;
+      $("progressFill").style.width = `${percentage}%`;
+
+      const msg = $("resultMessage");
+      if (percentage >= 80) {
+        msg.textContent = "Тамаша! Сіз материалды жақсы білесіз!";
+        msg.style.color = "#28a745";
+      } else if (percentage >= 60) {
+        msg.textContent = "Жақсы! Бірақ әлі үйрену керек.";
+        msg.style.color = "#ffc107";
+      } else {
+        msg.textContent = "Қайталау қажет. Материалды қайта оқып шығыңыз.";
+        msg.style.color = "#dc3545";
+      }
+
+      $("resultModal").style.display = "flex";
+      $("resultModal").setAttribute("aria-hidden", "false");
+    }
+
+    function closeModal() {
+      $("resultModal").style.display = "none";
+      $("resultModal").setAttribute("aria-hidden", "true");
+    }
+
+    $("closeBtn").addEventListener("click", closeModal);
+
+    // close on background click
+    $("resultModal").addEventListener("click", (e) => {
+      if (e.target.id === "resultModal") closeModal();
+    });
+
+    // =========================
+    // INIT
+    // =========================
+    window.addEventListener("load", async () => {
+      // OPTION A (recommended): store userId separately
+      const userId = localStorage.getItem(STORAGE.userIdKey);
+      const token = localStorage.getItem(STORAGE.tokenKey);
+
+      // If you only have token and NO userId, you must change backend to /user/me and send Authorization.
+      if (!userId && !token) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        if (userId) {
+          currentUser = await loadUserDataById(userId);
+        } else {
+          // Fallback: try token as userId (ONLY if your token is actually the userId)
+          currentUser = await loadUserDataById(token);
+        }
+      } catch (e) {
+        console.error("Error loading user data:", e);
+        // If user not found / invalid token -> redirect
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>
