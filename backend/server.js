@@ -9,8 +9,11 @@ app.use(cors());
 app.use(express.json()); // Фронтендтен келетін JSON-ды оқу үшін
 
 // 2. База қосылымын реттеу (Күту уақытын шектеу)
-mongoose.connect(process.env.MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000 // База жауап бермесе, 5 секундта бірден қате лақтырады
+// 2. База қосылымын реттеу (Қауіпсіз нұсқа)
+const DB_URI = process.env.MONGODB_URI || "mongodb+srv://kuatkyzyaizada1:<aizada2604>@cluster0.qaicgp2.mongodb.net/";
+
+mongoose.connect(DB_URI, {
+    serverSelectionTimeoutMS: 5000
 })
 .then(() => console.log("🚀 MongoDB базасына сәтті қосылдық!"))
 .catch(err => console.error("❌ MongoDB қосылу қатесі:", err));
