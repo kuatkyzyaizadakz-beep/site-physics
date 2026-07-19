@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const testResultSchema = new mongoose.Schema({
-  toqsan: Number, // 1, 2, 3, 4
-  module: String, // Название модуля (кинематика, динамика и т.д.)
+  toqsan: Number,
+  module: String,
   testName: String,
   score: Number,
   totalQuestions: Number,
@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   email: String,
   password: String,
+  isAdmin: { type: Boolean, default: false }, // 👈 ОСЫ ЖОЛДЫ ҚОСЫҢЫЗ
   testResults: [testResultSchema],
   registrationDate: { type: Date, default: Date.now }
 }, {
