@@ -13,11 +13,11 @@ const userSchema = new mongoose.Schema({
   name: String,
   email: String,
   password: String,
-  isAdmin: { type: Boolean, default: false }, // 👈 ОСЫ ЖОЛДЫ ҚОСЫҢЫЗ
+  isAdmin: { type: Boolean, default: false },
   testResults: [testResultSchema],
   registrationDate: { type: Date, default: Date.now }
 }, {
   timestamps: true
 });
 
-module.exports = mongoose.model('users', userSchema, 'users');
+module.exports = mongoose.model('User', userSchema, 'users');
