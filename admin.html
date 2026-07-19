@@ -281,6 +281,372 @@
             }
         }
 
+        // Серверден деректерді жүктеп алу
+        async function fetchAdminData() {
+            const tbody = document.getElementById('tableBody');
+            try {
+                const response = await fetch(`${API_URL}/admin/all-results`);
+                if (!response.ok) {
+                    throw new Error('Сервер жауап бермеді');
+                }
+                
+                // Серверден келген деректер (массив)
+                const users = await response.json();
+                console.log('Серверден келген деректер:', users);
+                
+                // Админнің өзін қоспағандағы оқушылар
+                const students = users.filter(u => u.email !== ADMIN_EMAIL);
+                
+                // ============ СТАТИСТИКА ============
+                let totalTests = 0;
+                let totalScore = 0;
+                let totalQuestions = 0;
+                
+                students.forEach(user => {
+                    if (user.testResults && user.testResults.length > 0) {
+                        totalTests += user.testResults.length;
+                        user.testResults.forEach(t => {
+                            totalScore += t.score || 0;
+                            totalQuestions += t.totalQuestions || 1;
+                        });
+                    }
+                });
+                
+                const avgScore = totalQuestions > 0 
+                    ? ((totalScore / totalQuestions) * 100).toFixed(1) 
+                    : '0';
+                
+                // HTML-ге жазу
+                document.getElementById('totalStudents').textContent = students.length;
+                document.getElementById('totalTests').textContent = totalTests;
+                document.getElementById('avgScore').textContent = avgScore + '%';
+                
+                // ============ КЕСТЕ ============
+                let html = '';
+                
+                students.forEach(user => {
+                    if (user.testResults && user.testResults.length > 0) {
+                        user.testResults.forEach(test => {
+                            const percent = (test.score / test.totalQuestions) * 100;
+                            let badge = 'badge-low';
+                            if (percent >= 80) badge = 'badge-high';
+                            else if (percent >= 50) badge = 'badge-mid';
+                            
+                            let formattedDate = 'Белгісіз';
+                            if (test.date) {
+                                const d = new Date(test.date);
+                                formattedDate = isNaN(d.getTime()) ? test.date : d.toLocaleDateString('kk-KZ');
+                            }
+                            
+                            const testName = test.testName || test.testTitle || 'Тест';
+                            
+                            html += `<tr>
+                                <td><strong>${escapeHtml(user.name)}</strong></td>
+                                <td>${escapeHtml(user.email)}</td>
+                                <td>${escapeHtml(testName)}</td>
+                                <td><span class="badge ${badge}">${test.score}/${test.totalQuestions} (${percent.toFixed(0)}%)</span></td>
+                                <td>${formattedDate}</td>
+                            </tr>`;
+                        });
+                    } else {
+                        // Тест тапсырмаған оқушы
+                        html += `<tr>
+                            <td><strong>${escapeHtml(user.name)}</strong></td>
+                            <td>${escapeHtml(user.email)}</td>
+                            <td colspan="3" style="color:#999;">📭 Әлі тест тапсырған жоқ</td>
+                        </tr>`;
+                    }
+                });
+                
+                if (html === '') {
+                    tbody.innerHTML = '<tr><td colspan="5" class="no-data">📭 Әлі тест нәтижелері жоқ</td></tr>';
+                } else {
+                    tbody.innerHTML = html;
+                }
+                
+            } catch (error) {
+                console.error("Қате:", error);
+                tbody.innerHTML = `<tr><td colspan="5" class="no-data" style="color: red;">❌ Деректерді жүктеу қатесі: ${error.message}</td></tr>`;
+            }
+        }
+
+        // XSS қорғанысы
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        // Іздеу фильтрі
+        function filterTable() {
+            const filter = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        }
+
+        function logout() {
+            if (confirm('Шыққыңыз келе ме?')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAdminAccess();
+            fetchAdminData();
+            document.getElementById('searchInput').addEventListener('keyup', filterTable);
+        });
+    </script>
+</body>
+</html>            height: 55px;
+            width: 55px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #1E90FF20;
+            padding: 5px;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-text p {
+            margin: 5px 0 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #1E90FF, #0066cc);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30,144,255,0.3);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .content {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #1E90FF;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            color: #1E90FF;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .students-section {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .students-section h2 {
+            color: #1E90FF;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #1E90FF;
+            padding-bottom: 10px;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #1E90FF;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            background: #f0f8ff;
+            color: #1E90FF;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #555;
+        }
+
+        tr:hover td {
+            background: #f8fbff;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-high { background: #c6f6d5; color: #22543d; }
+        .badge-mid { background: #fefcbf; color: #744210; }
+        .badge-low { background: #fed7d7; color: #822727; }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .header-left {
+                flex-direction: column;
+            }
+            .content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-left">
+            <img src="лого.png" class="logo" alt="Logo" onerror="this.src='https://via.placeholder.com/55?text=Ph'">
+            <div class="header-text">
+                <h1>🔬 Физика Білім Платформасы</h1>
+                <p>9 сынып педагогтарына арналған көмекші құрал</p>
+            </div>
+        </div>
+        <div class="nav-buttons">
+            <span class="admin-badge">👑 Админ</span>
+            <a href="dashboard.html" class="nav-btn">📚 Материалдар</a>
+            <button class="nav-btn logout-btn" onclick="logout()">🚪 Шығу</button>
+        </div>
+    </header>
+
+    <main class="content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="totalStudents">0</h3>
+                <p>👨‍🎓 Тіркелген оқушылар</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="totalTests">0</h3>
+                <p>📝 Барлық тесттер саны</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="avgScore">0%</h3>
+                <p>📊 Орташа үлгерім</p>
+            </div>
+        </div>
+
+        <div class="students-section">
+            <h2>📋 Оқушылардың тест нәтижелері</h2>
+            <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Оқушы аты немесе email бойынша іздеу...">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Оқушы</th><th>Email</th><th>Тест атауы</th><th>Нәтиже</th><th>Күні</th></tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="5" class="no-data">🔄 Деректер базадан жүктелуде...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const ADMIN_EMAIL = "kuatkyzyaizada1@gmail.com";
+        const API_URL = "https://site-physics.onrender.com";
+
+        function checkAdminAccess() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+                window.location.href = 'dashboard.html';
+            }
+        }
+
         // Серверден нақты деректерді жүктеп алу функциясы
         async function fetchAdminData() {
             const tbody = document.getElementById('tableBody');
