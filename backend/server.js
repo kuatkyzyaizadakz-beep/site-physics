@@ -142,7 +142,8 @@ app.post('/save-test', async (req, res) => {
 // Барлық нәтижелер (админ үшін)
 app.get('/admin/all-results', async (req, res) => {
   try {
-    const users = await User.find({}, 'name email testResults');
+    const users = await User.find({});
+    console.log('Табылған пайдаланушылар саны:', users.length);
     res.json(users);
   } catch (error) {
     console.error("Admin all-results error:", error);
