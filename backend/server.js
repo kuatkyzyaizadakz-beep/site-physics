@@ -6,7 +6,7 @@ const cors = require('cors');
 const User = require('./userModel');  // ← ОСЫ ЖОЛДЫ ҚОСЫҢЫЗ!
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // ============ MIDDLEWARE ============
 app.use(cors({
