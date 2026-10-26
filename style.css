@@ -145,12 +145,11 @@ body {
 
 /* ============== КОНТЕЙНЕР ============== */
 .container {
-    margin-left: 280px;
+    margin-left: 300px;
     padding: 25px;
-    width: calc(100% - 300px);
+    width: calc(100% - 320px); 
     box-sizing: border-box;
 }
-
 /* ============== СЕКЦИЯЛАР ============== */
 .section {
     background: white;
