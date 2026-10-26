@@ -1,1 +1,612 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Атом ядросы - 3 тоқсан</title>
+  <link rel="icon" type="image/png" href="лого.png" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #eaf4fc 0%, #d4e4f5 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      background: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1E90FF;
+    }
+
+    .nav-btn {
+      padding: 10px 20px;
+      background: #1E90FF;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+
+    .nav-btn:hover {
+      background: #0066cc;
+      transform: translateY(-2px);
+    }
+
+    /* Тест контейнері */
+    .test-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .test-header {
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      margin-bottom: 25px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .test-header h1 {
+      color: #1E90FF;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+
+    .test-header p {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    /* Карточка стилі - user.html-ға ұқсас */
+    .question-card {
+      background: white;
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .question-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .question-title {
+      color: #1E90FF;
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #1E90FF;
+      display: inline-block;
+    }
+
+    .question-text {
+      color: #333;
+      font-size: 1rem;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .option {
+      padding: 14px 18px;
+      background: #f0f8ff;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    .option:hover {
+      border-color: #1E90FF;
+      background: #e3f0ff;
+      transform: translateX(5px);
+    }
+
+    .option.selected {
+      border-color: #1E90FF;
+      background: linear-gradient(135deg, #1E90FF, #0066cc);
+      color: white;
+    }
+
+    /* Батырмалар */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #28a745, #1e7e34);
+      color: white;
+      border: none;
+      border-radius: 40px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(40,167,69,0.3);
+    }
+
+    .submit-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Модалдық терезе */
+    .result-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(5px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 25px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-content h2 {
+      color: #1E90FF;
+      margin-bottom: 20px;
+    }
+
+    .score {
+      font-size: 3rem;
+      color: #1E90FF;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(45deg, #1E90FF, #764ba2);
+      transition: width 0.5s ease;
+      width: 0%;
+      border-radius: 10px;
+    }
+
+    .modal-btn {
+      padding: 12px 25px;
+      background: #1E90FF;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      margin: 5px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .modal-btn:hover {
+      background: #0066cc;
+    }
+
+    /* Прогресс индикаторы */
+    .progress-info {
+      background: white;
+      border-radius: 16px;
+      padding: 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .progress-info span {
+      color: #1E90FF;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .header { flex-direction: column; gap: 15px; text-align: center; }
+      .question-card { padding: 18px; }
+      .option { padding: 10px 14px; }
+      .modal-content { padding: 25px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="logo">🔬 Физика Білім Платформасы</div>
+    <div>
+      <a href="user.html" class="nav-btn">🏠 Профильге оралу</a>
+      <a href="dashboard.html" class="nav-btn">📊 Басты бет</a>
+    </div>
+  </header>
+
+  <div class="test-container">
+    <div class="test-header">
+      <h1>📚 Атом ядросы - 3 тоқсан</h1>
+      <p>10 сұрақ | Уақыт: 20 минут</p>
+    </div>
+
+    <div class="progress-info">
+      📝 Барлық сұрақтарға жауап беріңіз
+    </div>
+
+    <form id="testForm">
+      <!-- Q1 -->
+      <div class="question-card" data-q="q1">
+        <div class="question-title">Сұрақ №1</div>
+        <div class="question-text">Ядролық күштердің қасиеттері туралы қай тұжырым қате?</div>
+        <div class="options">
+          <div class="option">A) Олар қысқа әрекетті, тек ядро ішінде (10⁻¹⁴–10⁻¹⁵ м) әрекет етеді </div>
+          <div class="option">B) Олар зарядқа тәуелсіз, протон–протон, нейтрон–нейтрон және протон–нейтрон арасында әрекет етеді </div>
+          <div class="option">C) Олар қанығу қасиетіне ие </div>
+          <div class="option">D) Олар тек зарядталған бөлшектер, яғни протондар арасында ғана әрекет етеді </div>
+        </div>
+        <input type="hidden" id="q1" />
+      </div>
+
+      <!-- Q2 -->
+      <div class="question-card" data-q="q2">
+        <div class="question-title">Сұрақ №2</div>
+        <div class="question-text">Қай жұп изотоптар болып табылады?</div>
+        <div class="options">
+          <div class="option">A) ¹⁶₈O және ¹⁴₇N</div>
+          <div class="option">B) ¹⁶₈O және ¹⁷₈O</div>
+          <div class="option">C) ¹²₆C және ¹⁴₇N</div>
+          <div class="option">D)¹₁H және ⁴₂He</div>
+        </div>
+        <input type="hidden" id="q2" />
+      </div>
+
+      <!-- Q3 -->
+      <div class="question-card" data-q="q3">
+        <div class="question-title">Сұрақ №3</div>
+        <div class="question-text">Нейтрондардың көбею коэффициенті k = 1 болғанда тізбекті ядролық реакция қалай жүреді?</div>
+        <div class="options">
+          <div class="option">A) Реакция мүлде жүрмейді</div>
+          <div class="option">B) Реакция жарылыс тәрізді жүреді</div>
+          <div class="option">C) Реакция белгілі бір жылдамдықпен жүреді</div>
+          <div class="option">D) Реакция өздігінен тоқтайды</div>
+        </div>
+        <input type="hidden" id="q3" />
+      </div>
+
+      <!-- Q4 -->
+      <div class="question-card" data-q="q4">
+        <div class="question-title">Сұрақ №4</div>
+        <div class="question-text">Термоядролық реакцияны жүзеге асыру үшін неге өте жоғары температура қажет?</div>
+        <div class="options">
+          <div class="option">A) Кулондық тебілу күштерін жеңіп, ядроларды ядролық күштердің әсерлесу қашықтығына дейін жақындату қажет</div>
+          <div class="option">B) Ядролар жоғары температурада өздігінен ыдырайды</div>
+          <div class="option">C) Жоғары температурада нейтрондар баяулайды</div>
+          <div class="option">D) Ядролық күштер тек жоғары температурада пайда болады</div>
+        </div>
+        <input type="hidden" id="q4" />
+      </div>
+
+      <!-- Q5 -->
+      <div class="question-card" data-q="q5">
+        <div class="question-title">Сұрақ №5</div>
+        <div class="question-text">Бөлшек пен антибөлшек бір-бірімен әрекеттескенде не болады?</div>
+        <div class="options">
+          <div class="option">A)Олар бір-бірін тебеді</div>
+          <div class="option">B)Олар қосылып, жаңа ядро түзеді</div>
+          <div class="option">C)Аннигиляция жүреді: екеуі де жойылып, энергия кванты түзіледі</div>
+          <div class="option">D)Олардың зарядтары бір-біріне өтеді</div>
+        </div>
+        <input type="hidden" id="q5" />
+      </div>
+
+      <!-- Q6 -->
+      <div class="question-card" data-q="q6">
+        <div class="question-title">Сұрақ №6</div>
+        <div class="question-text">Жартылай ыдырау периоды дегеніміз </div>
+        <div class="options">
+          <div class="option">A)Барлық ядроның ыдырау уақыты </div>
+          <div class="option">B)Ядролардың жартысы ыдырайтын уақыт</div>
+          <div class="option">C)Бір ядроның өмір сүру уақыты</div>
+          <div class="option">D)Толық жойылу уақыты</div>
+        </div>
+        <input type="hidden" id="q6" />
+      </div>
+
+      <!-- Q7 -->
+      <div class="question-card" data-q="q7">
+        <div class="question-title">Сұрақ №7</div>
+        <div class="question-text">Гелий-4 ядросы үшін: m_p = 1,00728 м.а.б., m_n = 1,00866 м.а.б., ядро массасы M_я = 4,00151 м.а.б. Ядроның меншікті байланыс энергиясы қанша?</div>
+        <div class="options">
+          <div class="option">A) 28,3 МэВ/нуклон</div>
+          <div class="option">B) 0,03 МэВ/нуклон</div>
+          <div class="option">C) 7,1 МэВ/нуклон</div>
+          <div class="option">D) 14,1 МэВ/нуклон</div>
+        </div>
+        <input type="hidden" id="q7" />
+      </div>
+
+      <!-- Q8 -->
+      <div class="question-card" data-q="q8">
+        <div class="question-title">Сұрақ №8</div>
+        <div class="question-text">Жартылай ыдырау периоды 4 тәулік болатын радиоактивті препараттың 12 тәуліктен кейін 800 ядросы ыдырамай қалды. Бастапқы ядролар саны қанша болған?</div>
+        <div class="options">
+          <div class="option">A) 2400</div>
+          <div class="option">B) 3200 </div>
+          <div class="option">C) 6400</div>
+          <div class="option">D) 9600</div>
+        </div>
+        <input type="hidden" id="q8" />
+      </div>
+
+      <!-- Q9 -->
+      <div class="question-card" data-q="q9">
+        <div class="question-title">Сұрақ №9</div>
+        <div class="question-text">Ядролық реакцияда жетіспейтін элементті жазыңдар: ²⁷₁₃Al + ¹₀n → ... + ⁴₂He</div>
+        <div class="options">
+          <div class="option">A) ²⁴₁₁Na</div>
+          <div class="option">B) ²⁴₁₂Mg</div>
+          <div class="option">C) ²⁸₁₃Al</div>
+          <div class="option">D) ²³₁₁Na</div>
+        </div>
+        <input type="hidden" id="q9" />
+      </div>
+
+      <!-- Q10 -->
+      <div class="question-card" data-q="q10">
+        <div class="question-title">Сұрақ №10</div>
+        <div class="question-text">²₁H + ³₁H → ⁴₂He + ¹₀n реакциясында қанша энергия бөлінеді? (m(²₁H) = 2,01410 м.а.б., m(³₁H) = 3,01605 м.а.б., m(⁴₂He) = 4,00260 м.а.б., m(¹₀n) = 1,00866 м.а.б.)</div>
+        <div class="options">
+          <div class="option">A) 17,6 МэВ</div>
+          <div class="option">B) 1,76 МэВ</div>
+          <div class="option">C) 931,5 МэВ</div>
+          <div class="option">D) 5,0 МэВ</div>
+        </div>
+        <input type="hidden" id="q10" />
+      </div>
+
+      <button type="button" class="submit-btn" id="submitBtn">✅ Тестті аяқтау</button>
+    </form>
+
+    <div class="nav-buttons">
+      <a href="user.html" class="nav-btn">👤 Профильге оралу</a>
+      <a href="dashboard.html" class="nav-btn">🏠 Басты бет</a>
+    </div>
+  </div>
+
+  <!-- Result Modal -->
+  <div class="result-modal" id="resultModal">
+    <div class="modal-content">
+      <h2>📊 Тест нәтижесі!</h2>
+      <div class="score" id="finalScore">0/10</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <p id="resultMessage"></p>
+      <div class="nav-buttons" style="justify-content:center;">
+        <button class="modal-btn" id="closeBtn">🔒 Жабу</button>
+        <a href="user.html" class="modal-btn">🏠 Профильге оралу</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============== ДҰРЫС ЖАУАПТАР ==============
+    const correctAnswers = {
+      q1: "D",
+      q2: "B",
+      q3: "C",
+      q4: "A",
+      q5: "C",
+      q6: "B",
+      q7: "C",
+      q8: "C",
+      q9: "A",
+      q10: "A"
+    };
+
+    // ============== КӨМЕКШІ ФУНКЦИЯЛАР ==============
+    function $(id) { return document.getElementById(id); }
+
+    function getSelectedValue(optionEl) {
+      const text = optionEl.textContent.trim();
+      return text.charAt(0);
+    }
+
+    function allAnswered(total) {
+      for (let i = 1; i <= total; i++) {
+        if (!$("q" + i).value) return false;
+      }
+      return true;
+    }
+
+    // ============== LOCALSTORAGE-ҒА САҚТАУ ==============
+ function saveToLocalStorage(score, totalQuestions) {
+    const testTitle = document.title || "Тест нәтижесі";
+    
+    let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (!currentUser) {
+        alert('Пайдаланушы кірмеген! Қайта кіріңіз.');
+        window.location.href = 'login.html';
+        return false;
+    }
+    
+    if (!currentUser.tests) currentUser.tests = [];
+    
+    // Есептеу - МЫНА ЖОЛДЫ ТЕКСЕРІҢІЗ
+    const percentValue = (score / totalQuestions) * 100;
+    
+    currentUser.tests.push({
+        testTitle: testTitle,
+        score: score,
+        totalQuestions: totalQuestions,
+        date: new Date().toLocaleString('kk-KZ'),
+        percent: percentValue  // ✅ Сан ретінде сақтау керек!
+    });
+    
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    
+    let users = JSON.parse(localStorage.getItem('users') || '[]');
+    const index = users.findIndex(u => u.email === currentUser.email);
+    if (index !== -1) {
+        users[index] = currentUser;
+        localStorage.setItem('users', JSON.stringify(users));
+    }
+    
+    return true;
+}
+
+    // ============== НӘТИЖЕНІ КӨРСЕТУ ==============
+    function showResults(score, totalQuestions) {
+      const percentage = (score / totalQuestions) * 100;
+      
+      $("finalScore").textContent = `${score}/${totalQuestions}`;
+      $("progressFill").style.width = `${percentage}%`;
+      
+      const msg = $("resultMessage");
+      if (percentage >= 80) {
+        msg.textContent = "🎉 Тамаша! Сіз динамика тақырыбын жақсы білесіз!";
+        msg.style.color = "#28a745";
+      } else if (percentage >= 60) {
+        msg.textContent = "👍 Жақсы! Бірақ әлі үйрену керек.";
+        msg.style.color = "#ffc107";
+      } else {
+        msg.textContent = "📚 Қайталау қажет. Материалды қайта оқып шығыңыз.";
+        msg.style.color = "#dc3545";
+      }
+      
+      $("resultModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      $("resultModal").style.display = "none";
+    }
+
+    // ============== ТЕСТТІ ТЕКСЕРУ ==============
+    function submitTest() {
+      const submitBtn = $("submitBtn");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Тест тексерілуде...";
+      
+      const totalQuestions = 10;
+      
+      try {
+        if (!allAnswered(totalQuestions)) {
+          alert("⚠️ Барлық сұраққа жауап беріңіз!");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "✅ Тестті аяқтау";
+          return;
+        }
+        
+        let score = 0;
+        for (let i = 1; i <= totalQuestions; i++) {
+          const userAnswer = $("q" + i).value;
+          if (userAnswer === correctAnswers["q" + i]) score++;
+        }
+        
+        saveToLocalStorage(score, totalQuestions);
+        showResults(score, totalQuestions);
+        
+      } catch (err) {
+        console.error("Қате:", err);
+        alert("Қате пайда болды: " + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "✅ Тестті аяқтау";
+      }
+    }
+
+    // ============== ОҚИҒАЛАРДЫ БАЙЛАНЫСТЫРУ ==============
+    document.addEventListener("click", (e) => {
+      const option = e.target.closest(".option");
+      if (!option) return;
+      
+      const questionCard = option.closest(".question-card");
+      if (!questionCard) return;
+      
+      const questionId = questionCard.getAttribute("data-q");
+      if (!questionId) return;
+      
+      questionCard.querySelectorAll(".option").forEach(el => el.classList.remove("selected"));
+      option.classList.add("selected");
+      
+      $(questionId).value = getSelectedValue(option);
+    });
+    
+    $("submitBtn").addEventListener("click", submitTest);
+    $("closeBtn").addEventListener("click", closeModal);
+    
+    $("resultModal").addEventListener("click", (e) => {
+      if (e.target.id === "resultModal") closeModal();
+    });
+    
+    // ============== ПАЙДАЛАНУШЫНЫ ТЕКСЕРУ ==============
+    window.addEventListener("load", () => {
+      const storedUser = localStorage.getItem("currentUser");
+      if (!storedUser) {
+        alert("Пайдаланушы кірмеген! Кіру бетіне өтіңіз.");
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>
