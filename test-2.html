@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2 тоқсан бойынша тест</title>
+  <title>1 тоқсан бойынша тест</title>
   <link rel="icon" type="image/png" href="лого.png" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -223,14 +223,14 @@
 
 <body>
   <div class="header">
-    <h1>2 тоқсан бойынша тест</h1>
+    <h1>1 тоқсан бойынша тест</h1>
     <p>20 сұрақ | Уақыт: 40 минут</p>
   </div>
 
   <div class="test-container">
     <form id="testForm">
       <!-- Q1 -->
-      <div class="question" data-q="q1">
+     <div class="question" data-q="q1">
         <h3>1. Ньютонның бірінші заңы нені тұжырымдайды?</h3>
         <div class="options">
           <div class="option">A) Денеге әсер ететін күштер тең болса, ол тыныштықта немесе бірқалыпты түзу сызықты қозғалады</div>
@@ -498,10 +498,10 @@
   <script>
     // ============== ДҰРЫС ЖАУАПТАР ==============
     const correctAnswers = {
-      q1: "A", q2: "B", q3: "C", q4: "B", q5: "A",
-      q6: "B", q7: "D", q8: "C", q9: "C", q10: "C",
-      q11: "B", q12: "B", q13: "C", q14: "D", q15: "B",
-      q16: "D", q17: "C", q18: "C", q19: "A", q20: "D"
+      q1: "B", q2: "C", q3: "B", q4: "C", q5: "A",
+      q6: "B", q7: "B", q8: "C", q9: "B", q10: "B",
+      q11: "C", q12: "C", q13: "B", q14: "A", q15: "C",
+      q16: "C", q17: "C", q18: "A", q19: "D", q20: "B"
     };
 
     // ============== КӨМЕКШІ ФУНКЦИЯЛАР ==============
@@ -522,7 +522,7 @@
 
     // ============== LOCALSTORAGE-ҒА САҚТАУ ==============
     function saveToLocalStorage(score, totalQuestions) {
-      const testTitle = "2 тоқсан бойынша тест";
+      const testTitle = "1 тоқсан бойынша тест";
       
       let currentUser = JSON.parse(localStorage.getItem('currentUser'));
       
@@ -586,7 +586,7 @@
       submitBtn.disabled = true;
       submitBtn.textContent = "Тест тексерілуде...";
       
-      const totalQuestions = 20;
+      const totalQuestions = 20;  // ✅ ТҮЗЕТІЛДІ: 20 сұрақ
       
       try {
         // Барлық сұраққа жауап берілгенін тексеру
@@ -607,7 +607,7 @@
           }
         }
         
-        // LOCALSTORAGE-ҒА САҚТАУ
+        // ✅ LOCALSTORAGE-ҒА САҚТАУ
         saveToLocalStorage(score, totalQuestions);
         
         // Нәтижені көрсету
