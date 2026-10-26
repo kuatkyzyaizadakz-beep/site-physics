@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="kk"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Зертханалық жұмыс №1 — Үдеуді анықтау</title>
+<style>
+:root{--bg:#fff;--fg:#1d2733;--mut:#5b6877;--card:#f2f6f9;--acc:#0b6e8a;--hd:#4f8199;--bd:#d3dde5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181d;--fg:#e6ebf0;--mut:#9aa8b6;--card:#1e252c;--acc:#4cc2e0;--hd:#2f5a70;--bd:#34404b}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.w{max-width:900px;margin:0 auto;padding:16px}
+h1{font-size:20px;color:var(--acc);margin:0 0 4px}
+.sub{color:var(--mut);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px}
+canvas{width:100%;height:auto;display:block;border-radius:8px;background:var(--bg);border:1px solid var(--bd)}
+.row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+label{display:block;font-size:13px;color:var(--mut)}
+input[type=range]{width:200px}
+button{background:var(--acc);color:var(--bg);border:0;border-radius:8px;padding:9px 16px;font-size:15px;cursor:pointer}
+button.s{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.big{font:600 26px ui-monospace,Menlo,monospace}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:480px;text-align:center}
+th{background:var(--hd);color:#fff;padding:6px;font-weight:600}
+td{border:1px solid var(--bd);padding:6px}
+.ok{color:var(--acc);font-weight:600}
+.steps li{margin:2px 0;color:var(--mut)} .steps li.on{color:var(--fg);font-weight:600}
+</style></head><body><div class="w">
+<h1>№1 зертханалық жұмыс. Теңүдемелі қозғалыс кезіндегі дененің үдеуін анықтау</h1>
+<p class="sub">Мақсаты: көлбеу науамен қозғалып келе жатқан шардың үдеуін өлшеу. Формула: a = 2s / t²</p>
+
+<div class="card"><canvas id="c" width="800" height="300"></canvas>
+<div class="row" style="margin-top:10px">
+ <div><label>1–2. Науаның көлбеу бұрышы α: <b id="av">10</b>°</label><input type="range" id="ang" min="5" max="20" step="1" value="10"></div>
+ <div><label>3. Қашықтық s (цилиндрге дейін): <b id="sv">0.60</b> м</label><input type="range" id="sd" min="0.30" max="0.90" step="0.05" value="0.60"></div>
+</div>
+<div class="row" style="margin-top:10px">
+ <button id="go">▶ Шарды жіберу</button>
+ <button class="s" id="rs">⟲ Қайта бастау</button>
+ <label style="display:inline"><input type="checkbox" id="man"> Қолмен секундомер</label>
+ <button class="s" id="stp" disabled>⏹ Секундомерді тоқтату</button>
+ <div><label>Секундомер, с</label><div class="big" id="sw">0.00</div></div>
+</div>
+<p id="msg" class="sub" style="margin:8px 0 0">Бұрыш пен қашықтықты таңдап, шарды жіберіңіз. Бірінші өлшеуден кейін α өзгермейді (5-тармақ).</p>
+</div>
+
+<div class="card"><b>Өлшеу және есептеу нәтижелері</b>
+<div class="tw"><table><thead><tr><th>№</th><th>s, м</th><th>t, с</th><th>a, м/с²</th><th>Δa, м/с²</th></tr></thead><tbody id="tb"></tbody></table></div>
+<div id="res" style="margin-top:10px"></div></div>
+
+<div class="card"><b>Қосымша: a(α) тәуелділігі</b>
+<p class="sub" style="margin:4px 0">Көк сызық — теория a = g·sinα, қызыл нүктелер — әр бұрыш үшін 5 өлшеудің орташасы (s = 0.6 м).</p>
+<button id="gr">📈 Графикті салу</button>
+<canvas id="gc" width="800" height="260" style="margin-top:8px"></canvas></div>
+
+<div class="card"><b>Жұмыс барысы</b>
+<ol class="steps" id="st"><li>Қондырғыны жинау: α мен s таңдау</li><li>Шарды жіберіп, t өлшеу (5 рет)</li><li>a, a_орт есептеу</li><li>Δa, Δa_орт, ε есептеу</li><li>Қосымша тапсырма және қорытынды</li></ol></div>
+</div>
+<script>
+const g=9.81,N=5,K=0.93;
+const cv=document.getElementById('c'),x=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+let rows=[],anim=null,locked=false;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function alpha(){return +$('ang').value*Math.PI/180}
+function sVal(){return +$('sd').value}
+function draw(d){ // d = шардың жүрген жолы (м)
+ const a=alpha(),s=sVal(),P=720,bx=760,by=250,fg=css('--fg');
+ x.clearRect(0,0,800,300);
+ x.fillStyle='#8a949e';x.fillRect(40,258,740,14); // үстел
+ const tx=bx-P*Math.cos(a),ty=by-P*Math.sin(a);
+ // штатив
+ x.strokeStyle=fg;x.lineWidth=3;x.beginPath();x.moveTo(tx+20,ty-12);x.lineTo(tx+20,258);x.stroke();
+ // науа
+ x.save();x.translate(tx,ty);x.rotate(a);
+ x.fillStyle='#5b6670';x.fillRect(0,0,P,8);
+ x.fillStyle='#aeb7bf';for(let i=0;i<=10;i++){x.fillRect(i*P/10,8,1.5,i%5?4:8)}
+ x.fillStyle='#c9d1d8';x.fillRect(s*P-9,-16,18,16); // цилиндр
+ x.strokeStyle='#5b6670';x.lineWidth=1;x.strokeRect(s*P-9,-16,18,16);
+ x.fillStyle='#d94f3d';x.beginPath();x.arc(d*P+8,-9,8,0,7);x.fill();
+ x.restore();
+ x.fillStyle=fg;x.font='13px system-ui';
+ x.fillText('α = '+(a*180/Math.PI).toFixed(0)+'°',bx-70,by-12);
+ x.fillText('s = '+s.toFixed(2)+' м',tx+P*s*Math.cos(a)-20,ty+P*s*Math.sin(a)-34);
+}
+function setStep(n){[...$('st').children].forEach((l,i)=>l.classList.toggle('on',i===n))}
+$('ang').oninput=()=>{$('av').textContent=$('ang').value;draw(0)};
+$('sd').oninput=()=>{$('sv').textContent=sVal().toFixed(2);draw(0)};
+let cur=null;
+function done(s,tm){rows.push({s,t:tm,a:2*s/(tm*tm)});anim=null;cur=null;$('stp').disabled=true;$('go').disabled=rows.length>=N;render()}
+function go(){
+ if(anim||rows.length>=N)return;
+ locked=true;$('ang').disabled=true;
+ const a=alpha(),s=sVal(),ac=g*Math.sin(a)*K,T=Math.sqrt(2*s/ac);
+ const t0=performance.now();setStep(1);cur={t0,s};
+ $('go').disabled=true;
+ anim=requestAnimationFrame(function f(now){
+  const t=(now-t0)/1000;
+  if(t<T){draw(.5*ac*t*t);$('sw').textContent=t.toFixed(2);anim=requestAnimationFrame(f);return}
+  draw(s);
+  if($('man').checked){$('sw').textContent=t.toFixed(2);$('stp').disabled=false;$('msg').textContent='Шар цилиндрге соқты! Секундомерді тоқтатыңыз.';anim=requestAnimationFrame(f);return}
+  // қол секундомерінің қателігі
+  const r=()=>(Math.random()+Math.random()+Math.random()-1.5)/1.5;
+  const tm=Math.max(.1,Math.round((T+0.04*r())*100)/100);
+  $('sw').textContent=tm.toFixed(2);done(s,tm);
+ });
+}
+function render(){
+ let h='';const n=rows.length,full=n===N;
+ const am=rows.reduce((p,q)=>p+q.a,0)/n;
+ rows.forEach((q,i)=>{q.da=Math.abs(am-q.a)});
+ for(let i=0;i<N;i++){const q=rows[i];
+  h+=`<tr><td>${i+1}</td><td>${q?q.s.toFixed(2):''}</td><td>${q?q.t.toFixed(2):''}</td><td>${q?q.a.toFixed(3):''}</td><td>${q&&full?q.da.toFixed(3):''}</td></tr>`}
+ $('tb').innerHTML=h;
+ if(!full){$('res').innerHTML=`<span class="sub">Өлшеу: ${n} / ${N}. ${n?'Келесі өлшеуді жасаңыз (α өзгермейді, s-ті өзгертуге болады).':''}</span>`;
+  $('msg').textContent=n?'Өлшеуді қайталаңыз.':'';return}
+ const dam=rows.reduce((p,q)=>p+q.da,0)/N,eps=dam/am*100;
+ const ath=g*Math.sin(alpha()),dev=Math.abs(am-ath)/ath*100;
+ setStep(4);
+ $('res').innerHTML=`
+ <p>a<sub>орт</sub> = (a₁+…+a₅)/5 = <b>${am.toFixed(3)}</b> м/с²<br>
+ Δa<sub>орт</sub> = (Δa₁+…+Δa₅)/5 = <b>${dam.toFixed(3)}</b> м/с²<br>
+ ε = Δa<sub>орт</sub>/a<sub>орт</sub> · 100% = <b>${eps.toFixed(1)}%</b></p>
+ <p class="ok">ε = ${eps.toFixed(1)}% болғанда a = ${am.toFixed(2)} ± ${dam.toFixed(2)} м/с²</p>
+ <p><b>Қосымша тапсырма:</b> a = g·sinα = 9.81·sin ${(alpha()*180/Math.PI).toFixed(0)}° = <b>${ath.toFixed(3)}</b> м/с². Тәжірибелік мән теориялықтан <b>${dev.toFixed(1)}%</b>-ға ерекшеленеді.</p>
+ <p><b>Қорытынды:</b> шар науамен тұрақты үдеумен қозғалады, үдеу α бұрышына тәуелді (a ≈ g·sinα). Айырмашылық үйкеліс күшінен және секундомерді қолмен басу қателігінен туындайды.</p>`;
+ $('msg').textContent='Жұмыс аяқталды. Қайта бастау үшін «Қайта бастау» батырмасын басыңыз.';
+}
+$('go').onclick=go;
+$('stp').onclick=()=>{if(!cur)return;cancelAnimationFrame(anim);const tm=Math.round((performance.now()-cur.t0)/10)/100;$('sw').textContent=tm.toFixed(2);done(cur.s,tm)};
+$('rs').onclick=()=>{cancelAnimationFrame(anim);anim=null;rows=[];locked=false;cur=null;$('stp').disabled=true;
+ $('ang').disabled=false;$('go').disabled=false;$('sw').textContent='0.00';
+ $('msg').textContent='Бұрыш пен қашықтықты таңдап, шарды жіберіңіз.';setStep(0);render();draw(0)};
+render();draw(0);setStep(0);
+$('gr').onclick=()=>{
+ const c=$('gc'),y=c.getContext('2d'),W=c.width,H=c.height,m=44,fg=css('--fg'),ac=css('--acc');
+ y.clearRect(0,0,W,H);y.strokeStyle=fg;y.fillStyle=fg;y.font='12px system-ui';
+ y.beginPath();y.moveTo(m,10);y.lineTo(m,H-m);y.lineTo(W-10,H-m);y.stroke();
+ const X=a=>m+(a-4)/17*(W-m-20),Y=v=>H-m-v/4*(H-m-20);
+ for(let a=5;a<=20;a+=5)y.fillText(a+'°',X(a)-8,H-m+16);
+ for(let v=0;v<=4;v++)y.fillText(v,m-16,Y(v)+4);
+ y.fillText('α',W-24,H-m+30);y.fillText('a, м/с²',4,12);
+ y.strokeStyle=ac;y.lineWidth=2;y.beginPath();
+ for(let a=4;a<=21;a+=.5){const v=g*Math.sin(a*Math.PI/180);a===4?y.moveTo(X(a),Y(v)):y.lineTo(X(a),Y(v))}y.stroke();
+ y.fillStyle='#d94f3d';
+ for(let a=5;a<=20;a++){const T=Math.sqrt(1.2/(g*Math.sin(a*Math.PI/180)*K));let sum=0;
+  for(let i=0;i<5;i++){const tm=T+.04*(Math.random()+Math.random()-1);sum+=1.2/(tm*tm)}
+  y.beginPath();y.arc(X(a),Y(sum/5),4,0,7);y.fill()}
+};
+</script>
+</body>
+</html>
