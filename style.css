@@ -45,13 +45,6 @@ body {
 }
 
 /* ============== МЕНЮ (САЙДБАР) ============== */
-.menu-content {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 40px);
-}
-
 .menu {
     width: 280px;
     float: left;
@@ -62,6 +55,13 @@ body {
     box-shadow: 2px 0 15px rgba(0,0,0,0.1);
     background: linear-gradient(135deg, #ffffff, #f8fbff);
     border-right: 1px solid #1E90FF20;
+}
+
+.menu-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 40px);
 }
 
 .menu h3 {
@@ -127,7 +127,6 @@ body {
     text-align: center;
     border-radius: 40px;
     text-decoration: none;
-    margin-top: auto;
     transition: all 0.3s ease;
     font-weight: 600;
     margin-top: 20px;
@@ -145,11 +144,12 @@ body {
 
 /* ============== КОНТЕЙНЕР ============== */
 .container {
-    margin-left: 300px;
-    padding: 25px;
-    width: calc(100% - 320px); 
+    margin-left: 280px;
+    padding: 25px 25px 25px 40px; /* Сол жақтан 40px бос орын */
+    width: calc(100% - 280px);
     box-sizing: border-box;
 }
+
 /* ============== СЕКЦИЯЛАР ============== */
 .section {
     background: white;
@@ -159,6 +159,7 @@ body {
     margin-bottom: 25px;
     display: none;
     transition: all 0.3s ease;
+}
 
 .section.active {
     display: block;
@@ -177,6 +178,7 @@ body {
     margin-top: 0;  
     margin-bottom: 8px; 
     font-size: 1.5rem;
+}
 
 .section h2::before {
     content: "📌 ";
@@ -407,55 +409,7 @@ body {
     content: "🖼️ ";
 }
 
-/* ============== РЕСПОНСИВТІ ДИЗАЙН ============== */
-@media (max-width: 768px) {
-    .menu {
-        width: 100%;
-        height: auto;
-        position: relative;
-        float: none;
-    }
-    
-    .menu-content {
-        height: auto;
-    }
-    
-    .container {
-        margin-left: 0;
-        width: 100%;
-        padding: 15px;
-    }
-    
-    .docs-container,
-    .presentations-container,
-    .excel-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .doc-item,
-    .presentation-card {
-        width: 100%;
-    }
-    
-    .header h1 {
-        font-size: 1.3rem;
-    }
-}
-
-/* ============== СКРОЛЛБАР ============== */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #1E90FF;
-    border-radius: 10px;
-}
+/* ============== ЗЕРТХАНАЛЫҚ ЖҰМЫСТАР ============== */
 .lab-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 300px));
@@ -556,7 +510,7 @@ body {
     color: white;
     padding: 8px 20px;
     border-radius: 40px;
-    margin: 0 0 8px 0;
+    margin: 0 0 10px 0;
     display: inline-block;
     text-decoration: none;
     font-weight: bold;
@@ -567,17 +521,74 @@ body {
     box-shadow: 0 5px 15px rgba(30,144,255,0.3);
 }
 
+#labView {
+    margin-top: 10px;
+}
+
 #labFrame {
     display: block;
     width: 100%;
     height: 760px;
     border: 0;
     border-radius: 12px;
+    background: #fff;
 }
 
+/* ============== РЕСПОНСИВТІ ДИЗАЙН ============== */
 @media (max-width: 768px) {
-    .lab-grid { grid-template-columns: 1fr; }
-    .lab-card { max-width: 100%; }
+    .menu {
+        width: 100%;
+        height: auto;
+        position: relative;
+        float: none;
+    }
+    
+    .menu-content {
+        height: auto;
+    }
+    
+    .container {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .docs-container,
+    .presentations-container,
+    .excel-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .doc-item,
+    .presentation-card {
+        width: 100%;
+    }
+    
+    .header h1 {
+        font-size: 1.3rem;
+    }
+    
+    .lab-grid { 
+        grid-template-columns: 1fr; 
+    }
+    .lab-card { 
+        max-width: 100%; 
+    }
+}
+
+/* ============== СКРОЛЛБАР ============== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1E90FF;
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
