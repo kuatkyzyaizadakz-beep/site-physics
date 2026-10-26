@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1 тоқсан бойынша тест</title>
+  <title>2 тоқсан бойынша тест</title>
   <link rel="icon" type="image/png" href="лого.png" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -223,7 +223,7 @@
 
 <body>
   <div class="header">
-    <h1>1 тоқсан бойынша тест</h1>
+    <h1>2 тоқсан бойынша тест</h1>
     <p>20 сұрақ | Уақыт: 40 минут</p>
   </div>
 
@@ -522,7 +522,7 @@
 
     // ============== LOCALSTORAGE-ҒА САҚТАУ ==============
     function saveToLocalStorage(score, totalQuestions) {
-      const testTitle = "1 тоқсан бойынша тест";
+      const testTitle = "2 тоқсан бойынша тест";
       
       let currentUser = JSON.parse(localStorage.getItem('currentUser'));
       
@@ -586,7 +586,7 @@
       submitBtn.disabled = true;
       submitBtn.textContent = "Тест тексерілуде...";
       
-      const totalQuestions = 20;  // ✅ ТҮЗЕТІЛДІ: 20 сұрақ
+      const totalQuestions = 20;  
       
       try {
         // Барлық сұраққа жауап берілгенін тексеру
