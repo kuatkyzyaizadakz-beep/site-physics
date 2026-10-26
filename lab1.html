@@ -147,7 +147,7 @@ $('gr').onclick=()=>{
   for(let i=0;i<5;i++){const tm=T+.04*(Math.random()+Math.random()-1);sum+=1.2/(tm*tm)}
   y.beginPath();y.arc(X(a),Y(sum/5),4,0,7);y.fill()}
 };
-new ResizeObserver(()=>parent.postMessage({labH:document.documentElement.scrollHeight},'*')).observe(document.body);
+new ResizeObserver(()=>parent.postMessage({labH:document.body.offsetHeight+16},'*')).observe(document.body);
 </script>
 </body>
 </html>
