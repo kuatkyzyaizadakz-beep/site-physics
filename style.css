@@ -153,13 +153,12 @@ body {
 /* ============== СЕКЦИЯЛАР ============== */
 .section {
     background: white;
-    padding: 25px;
+    padding: 20px 25px; 
     border-radius: 20px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     margin-bottom: 25px;
     display: none;
     transition: all 0.3s ease;
-}
 
 .section.active {
     display: block;
@@ -174,10 +173,10 @@ body {
 .section h2 {
     color: #1E90FF;
     border-bottom: 3px solid #1E90FF;
-    padding-bottom: 10px;
-    margin-bottom: 10px; 
+    padding-bottom: 8px;
+    margin-top: 0;  
+    margin-bottom: 8px; 
     font-size: 1.5rem;
-}
 
 .section h2::before {
     content: "📌 ";
@@ -555,10 +554,12 @@ body {
 .lab-back {
     background: linear-gradient(135deg, #1E90FF, #0066cc);
     color: white;
-    padding: 10px 24px;
+    padding: 8px 20px;
     border-radius: 40px;
-    margin: 0 0 10px 0; 
+    margin: 0 0 8px 0;
     display: inline-block;
+    text-decoration: none;
+    font-weight: bold;
 }
 
 .lab-back:hover {
