@@ -458,6 +458,126 @@ body {
     background: #1E90FF;
     border-radius: 10px;
 }
+.lab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 300px));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.lab-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    overflow: hidden;
+    background: white;
+    text-align: center;
+    padding-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.lab-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(30,144,255,0.2);
+}
+
+.lab-thumb {
+    height: 170px;
+    background: linear-gradient(135deg, #f0f8ff, #e8f4ff);
+    line-height: 0;
+}
+
+.lab-thumb svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.lab-title {
+    margin: 16px 12px 0;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #1E90FF;
+}
+
+.lab-title::before {
+    content: "📌 ";
+}
+
+.lab-sub {
+    margin: 8px 14px 0;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.lab-line {
+    height: 3px;
+    background: #1E90FF;
+    border-radius: 2px;
+    margin: 14px 24px 16px;
+}
+
+.lab-btn {
+    display: block;
+    width: max-content;
+    margin: 0 auto;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.lab-open {
+    background: #f0f8ff;
+    color: #1E90FF;
+    font-size: 1.1rem;
+    padding: 10px 40px;
+    border-radius: 30px;
+}
+
+.lab-open:hover {
+    background: #1E90FF;
+    color: white;
+}
+
+.lab-dl {
+    background: #5f4fd8;
+    color: white;
+    font-size: 0.9rem;
+    padding: 8px 18px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.lab-dl:hover {
+    background: #4a3cb8;
+}
+
+.lab-back {
+    background: linear-gradient(135deg, #1E90FF, #0066cc);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 40px;
+    margin: 0 0 15px 0;
+}
+
+.lab-back:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(30,144,255,0.3);
+}
+
+#labFrame {
+    display: block;
+    width: 100%;
+    height: 760px;
+    border: 0;
+    border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+    .lab-grid { grid-template-columns: 1fr; }
+    .lab-card { max-width: 100%; }
+}
 
 ::-webkit-scrollbar-thumb:hover {
     background: #0066cc;
