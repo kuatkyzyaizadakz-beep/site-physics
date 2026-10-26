@@ -859,47 +859,38 @@
         </div>
         </div>
 
-        <div id="lab" class="section">
+   <div id="lab" class="section">
     <h2>Зертханалық жұмыстар</h2>
 
     <!-- Таңдау карточкалары -->
-    <div id="labList" class="docs-container">
+    <div id="labList" class="lab-grid">
 
         <!-- №1 зертхана -->
-        <div class="doc-preview">
-          <div class="doc-item">
-            <div class="doc-thumbnail">
-              <svg viewBox="0 0 240 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;background:#e8f1fd">
-                <rect x="10" y="108" width="220" height="8" rx="2" fill="#8a949e"/>
-                <line x1="40" y1="34" x2="40" y2="108" stroke="#334" stroke-width="3"/>
-                <g transform="rotate(14 40 40)">
-                  <rect x="40" y="40" width="185" height="6" fill="#5b6670"/>
-                  <circle cx="75" cy="34" r="6" fill="#d94f3d"/>
-                  <rect x="190" y="30" width="12" height="10" fill="#c9d1d8"/>
-                </g>
-              </svg>
+        <div class="lab-card">
+            <div class="lab-thumb">
+                <svg viewBox="0 0 240 130" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="240" height="130" fill="#e8f1fd"/>
+                    <rect x="10" y="108" width="220" height="8" rx="2" fill="#8a949e"/>
+                    <line x1="40" y1="34" x2="40" y2="108" stroke="#334" stroke-width="3"/>
+                    <g transform="rotate(14 40 40)">
+                        <rect x="40" y="40" width="185" height="6" fill="#5b6670"/>
+                        <circle cx="75" cy="34" r="6" fill="#d94f3d"/>
+                        <rect x="190" y="30" width="12" height="10" fill="#c9d1d8"/>
+                    </g>
+                </svg>
             </div>
-            <div class="doc-info">
-              <h2>№1 зертхана</h2>
-              <p style="margin:4px 0">Дененің үдеуін анықтау</p>
-              <a href="#" onclick="openLab('lab1.html'); return false;">Ашу</a>
-              <a href="lab1.html" download="lab1.html"
-                 style="margin-left: 10px; background: #5f4fd8; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px;">
-                 Жүктеу (HTML)
-              </a>
-            </div>
-          </div>
+            <div class="lab-title">№1 зертхана</div>
+            <div class="lab-sub">Дененің үдеуін анықтау</div>
+            <div class="lab-line"></div>
+            <a class="lab-btn lab-open" onclick="openLab('lab1.html')">Ашу</a>
+            <a class="lab-btn lab-dl" href="lab1.html" download="lab1.html">Жүктеу (HTML)</a>
         </div>
-
     </div>
 
+    <!-- Симулятор көрінісі -->
     <div id="labView" style="display:none">
-        <button onclick="closeLab()"
-                style="background:#5f4fd8;color:#fff;border:0;border-radius:8px;padding:10px 20px;font-size:16px;cursor:pointer;margin:12px 0">
-            ← Артқа
-        </button>
-        <iframe id="labFrame" title="Зертханалық жұмыс симуляторы"
-                style="width:100%;height:1500px;border:0;border-radius:10px"></iframe>
+        <a class="lab-btn lab-back" onclick="closeLab()">← Артқа</a>
+        <iframe id="labFrame" title="Зертханалық жұмыс симуляторы"></iframe>
     </div>
 </div>
 
@@ -950,10 +941,13 @@
     }
 
     function openLab(file) {
-        document.getElementById('labFrame').src = file;
-        document.getElementById('labList').style.display = 'none';
-        document.getElementById('labView').style.display = 'block';
-    }
+    const frame = document.getElementById('labFrame');
+    frame.style.height = '760px';
+    frame.src = file;
+    document.getElementById('labList').style.display = 'none';
+    document.getElementById('labView').style.display = 'block';
+    document.getElementById('lab').scrollIntoView({behavior: 'smooth'});
+}
 
     function closeLab() {
         const frame = document.getElementById('labFrame');
@@ -962,13 +956,12 @@
         document.getElementById('labView').style.display = 'none';
         document.getElementById('labList').style.display = '';
     }
-
-    // iframe биіктігін симулятор өлшеміне автоматты бейімдеу
+    
     window.addEventListener('message', e => {
-        if (e.data && e.data.labH) {
-            document.getElementById('labFrame').style.height = e.data.labH + 'px';
-        }
-    });
+    if (e.data && e.data.labH) {
+        document.getElementById('labFrame').style.height = e.data.labH + 'px';
+    }
+});
 </script>
 
 </body>
