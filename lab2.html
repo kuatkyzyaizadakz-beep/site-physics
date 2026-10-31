@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>№2 зертханалық жұмыс: горизонталь лақтырылған дене</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:Arial,sans-serif;margin:0;background:#eef3f8;color:#1b2a3a}
+  .wrap{max-width:900px;margin:0 auto;padding:16px}
+  h1{font-size:20px;color:#1e6a91;margin:0 0 4px}
+  .sub{font-size:14px;color:#456;margin-bottom:12px}
+  .card{background:#fff;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  canvas{width:100%;height:auto;background:#fafcff;border:1px solid #cdd8e3;border-radius:8px;display:block}
+  .controls{display:flex;flex-wrap:wrap;gap:18px;align-items:center}
+  .ctrl label{display:block;font-size:14px;margin-bottom:4px}
+  .ctrl input[type=range]{width:220px}
+  button{background:#1e6a91;color:#fff;border:0;border-radius:6px;padding:10px 18px;font-size:15px;cursor:pointer}
+  button:disabled{background:#9db4c2;cursor:not-allowed}
+  button.sec{background:#6b7b88}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{background:#3f86a6;color:#fff;padding:8px;border:1px solid #fff}
+  td{padding:7px;border:1px solid #cdd8e3;text-align:center}
+  .res{font-size:15px;line-height:1.7}
+  .res b{color:#1e6a91}
+  .hint{font-size:13px;color:#567}
+  .mode label{margin-right:18px;font-size:15px;cursor:pointer}
+  #checkBox{display:none;margin-top:12px;padding:12px;background:#f3f8fc;border:1px dashed #8fb3c9;border-radius:8px}
+  #checkBox input[type=text]{width:110px;padding:8px;font-size:15px;border:1px solid #9bb;border-radius:6px}
+  #msg{margin-top:8px;font-size:14px;font-weight:bold}
+  .ok{color:#1e8449}.bad{color:#c0392b}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>№2 зертханалық жұмыс. Горизонталь лақтырылған дененің қозғалысын зерделеу</h1>
+  <div class="sub">Мақсаты: горизонталь лақтырылған дененің бастапқы жылдамдығын анықтау. Формула: υ₀ = l·√(g / 2h)</div>
+
+  <div class="card mode">
+    <b>Режим:</b>&nbsp;
+    <label><input type="radio" name="mode" value="auto" checked> Автоматты өлшеу</label>
+    <label><input type="radio" name="mode" value="check"> Тексеру режимі (l-ді өзім өлшеймін)</label>
+  </div>
+
+  <div class="card">
+    <canvas id="cv" width="800" height="440"></canvas>
+
+    <div id="checkBox">
+      <b>Сызғыштың ұлғайтылған көрінісі</b> (бөлік құны 1 мм). Шардың түскен нүктесін оқып, l мәнін енгізіңіз:
+      <canvas id="zoom" width="800" height="120" style="margin:8px 0"></canvas>
+      l = <input type="text" id="lin" placeholder="мыс. 57.3"> см
+      <button id="chk">Тексеру</button>
+      <div id="msg"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="controls">
+      <div class="ctrl">
+        <label>Биіктік h: <b id="hv">50</b> см</label>
+        <input type="range" id="h" min="20" max="80" value="50" step="1">
+      </div>
+      <div class="ctrl">
+        <label>Шарды жіберу биіктігі H (науада): <b id="Hv">15</b> см</label>
+        <input type="range" id="H" min="8" max="30" value="15" step="1">
+      </div>
+      <button id="go">Шарды жіберу</button>
+      <button id="reset" class="sec">Қайта бастау</button>
+    </div>
+    <p class="hint">Тәжірибе басталған соң h мен H өзгертілмейді (5-тармақ: шардың түсу деңгейін өзгертпей, тәжірибені 5 рет қайталаңдар). Өзгерту немесе режимді ауыстыру үшін «Қайта бастау» батырмасын басыңыз.</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th rowspan="2">№ р/с</th><th colspan="2">Өлшеу нәтижелері</th><th colspan="2">Есептеу нәтижелері</th></tr>
+        <tr><th>Биіктік h, м</th><th>Ұшу қашықтығы l, м</th><th>Бастапқы жылдамдық υ₀, м/с</th><th>Δυ₀ᵢ = |υ₀ᵢ − υ₀орт|, м/с</th></tr>
+      </thead>
+      <tbody id="tb"></tbody>
+    </table>
+  </div>
+
+  <div class="card res" id="result">Нәтиже 5 тәжірибеден кейін шығады.</div>
+</div>
+
+<script>
+const g = 9.8;
+const S = 330;          // масштаб: пиксель / метр
+const X0 = 200;         // науаның ұшы (x бойынша)
+const TY = 400;         // үстел деңгейі
+const rb = 6;           // шар радиусы (px)
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+const zc = document.getElementById('zoom');
+const zx = zc.getContext('2d');
+
+let trials = [];        // {h, H, l, lTrue, v}
+let anim = null;
+let landedX = null;     // түсу нүктесі (px)
+let landedLabel = '';   // l жазуы (көрсетілсе)
+let pending = null;     // тексеру режимінде күтіп тұрған тәжірибе
+
+const hS = document.getElementById('h');
+const HS = document.getElementById('H');
+const goB = document.getElementById('go');
+const modeRadios = document.querySelectorAll('input[name=mode]');
+const checkBox = document.getElementById('checkBox');
+
+function getMode(){ return document.querySelector('input[name=mode]:checked').value; }
+function getH(){ return hS.value / 100; }
+function getHr(){ return HS.value / 100; }
+
+hS.oninput = () => { document.getElementById('hv').textContent = hS.value; landedX = null; draw(null); };
+HS.oninput = () => { document.getElementById('Hv').textContent = HS.value; landedX = null; draw(null); };
+
+function geom(){
+  const h = getH(), R = getHr() * S;
+  return { h, R, yEnd: TY - h * S, cy: TY - h * S - R };
+}
+
+function arrow(x1, y1, x2, y2){
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  const a = Math.atan2(y2 - y1, x2 - x1);
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - 8 * Math.cos(a - .4), y2 - 8 * Math.sin(a - .4));
+  ctx.lineTo(x2 - 8 * Math.cos(a + .4), y2 - 8 * Math.sin(a + .4));
+  ctx.closePath(); ctx.fill();
+}
+
+function draw(ball){
+  const {h, R, yEnd, cy} = geom();
+  ctx.clearRect(0, 0, cv.width, cv.height);
+
+  // үстел
+  ctx.fillStyle = '#b9c4cf'; ctx.fillRect(0, TY, cv.width, 40);
+  ctx.fillStyle = '#8895a1'; ctx.fillRect(0, TY, cv.width, 3);
+
+  // сызғыш (әр 10 см)
+  ctx.fillStyle = '#fff3b0';
+  ctx.fillRect(X0 - 10, TY + 6, 1.0 * S + 20, 18);
+  ctx.strokeStyle = '#333'; ctx.fillStyle = '#333'; ctx.font = '10px Arial'; ctx.lineWidth = 1;
+  for(let c = 0; c <= 100; c += 10){
+    const x = X0 + c / 100 * S;
+    ctx.beginPath(); ctx.moveTo(x, TY + 6); ctx.lineTo(x, TY + 6 + (c % 50 === 0 ? 12 : 8)); ctx.stroke();
+    ctx.fillText(c, x - 5, TY + 22);
+  }
+  ctx.fillText('см', X0 + S + 14, TY + 22);
+
+  // штатив
+  const rodX = X0 - R - 30;
+  ctx.fillStyle = '#555';
+  ctx.fillRect(rodX - 30, TY - 8, 70, 8);
+  ctx.fillRect(rodX - 2, cy - 30, 5, TY - cy + 30);
+  ctx.fillRect(rodX, cy - 10, X0 - R - rodX, 4);
+
+  // науа
+  ctx.strokeStyle = '#7d8790'; ctx.lineWidth = 7; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.arc(X0, cy, R + 4, Math.PI / 2, Math.PI); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X0, yEnd + 4); ctx.lineTo(X0 + 10, yEnd + 4); ctx.stroke();
+
+  // h өлшемі
+  ctx.strokeStyle = '#c0392b'; ctx.fillStyle = '#c0392b'; ctx.lineWidth = 1.5;
+  const hx = X0 + 40;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(X0, yEnd); ctx.lineTo(hx + 8, yEnd); ctx.stroke();
+  ctx.setLineDash([]);
+  arrow(hx, yEnd, hx, TY); arrow(hx, TY, hx, yEnd);
+  ctx.font = 'bold 14px Arial';
+  ctx.fillText('h = ' + h.toFixed(2) + ' м', hx + 8, (yEnd + TY) / 2);
+
+  // траектория
+  if(anim && anim.trail){
+    ctx.strokeStyle = 'rgba(30,106,145,.6)'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    anim.trail.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // алдыңғы түсу нүктелері
+  ctx.fillStyle = '#e67e22';
+  trials.forEach(t => { ctx.beginPath(); ctx.arc(X0 + t.lTrue * S, TY - 2, 3, 0, 7); ctx.fill(); });
+
+  // l өлшемі
+  if(landedX !== null && landedLabel){
+    ctx.strokeStyle = '#27ae60'; ctx.fillStyle = '#27ae60'; ctx.lineWidth = 1.5;
+    const ly = TY - 18;
+    arrow(X0, ly, landedX, ly); arrow(landedX, ly, X0, ly);
+    ctx.font = 'bold 14px Arial';
+    ctx.fillText(landedLabel, (X0 + landedX) / 2 - 38, ly - 8);
+  }
+
+  // шар
+  const bp = ball ? ball : [X0 - (R - rb), cy];
+  ctx.fillStyle = '#2c3e50';
+  ctx.beginPath(); ctx.arc(bp[0], bp[1], rb, 0, 7); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(bp[0] - 2, bp[1] - 2, 1.8, 0, 7); ctx.fill();
+
+  ctx.fillStyle = '#334'; ctx.font = '13px Arial';
+  ctx.fillText('2-сурет. Қондырғы', 16, 24);
+}
+
+// ұлғайтылған сызғыш (10 см аралық, 1 мм бөлік)
+function drawZoom(lTrue){
+  const startCm = Math.floor(lTrue * 100) - 5;
+  const pxPerCm = zc.width / 10;
+  zx.clearRect(0, 0, zc.width, zc.height);
+  zx.fillStyle = '#fff3b0'; zx.fillRect(0, 50, zc.width, 55);
+  zx.strokeStyle = '#333'; zx.fillStyle = '#333'; zx.lineWidth = 1;
+  zx.font = '14px Arial';
+  for(let mm = 0; mm <= 100; mm++){
+    const x = mm / 10 * pxPerCm;
+    const len = mm % 10 === 0 ? 26 : (mm % 5 === 0 ? 18 : 11);
+    zx.beginPath(); zx.moveTo(x, 50); zx.lineTo(x, 50 + len); zx.stroke();
+    if(mm % 10 === 0) zx.fillText(startCm + mm / 10, x + 3, 95);
+  }
+  zx.fillText('см', zc.width - 24, 118);
+  // шардың түскен нүктесі
+  const bx = (lTrue * 100 - startCm) * pxPerCm;
+  zx.strokeStyle = '#e67e22'; zx.fillStyle = '#e67e22'; zx.lineWidth = 2;
+  zx.beginPath(); zx.moveTo(bx, 20); zx.lineTo(bx, 50); zx.stroke();
+  zx.beginPath(); zx.arc(bx, 14, 8, 0, 7); zx.fill();
+  zx.font = 'bold 13px Arial'; zx.fillText('шар', bx + 12, 18);
+}
+
+function vFromL(l, h){ return l * Math.sqrt(g / (2 * h)); }
+
+function launch(){
+  if(anim && anim.running) return;
+  if(pending) return;
+  if(trials.length >= 5) return;
+  const {h, R, yEnd, cy} = geom();
+  const Hr = getHr();
+
+  // модель: домалайтын шар (10/7) + шамалы үйкеліс + кездейсоқ ауытқу
+  const rnd = (Math.random() * 2 - 1);
+  const v = Math.sqrt(10 / 7 * g * Hr) * 0.97 * (1 + 0.025 * rnd);
+  const tFall = Math.sqrt(2 * h / g);
+  const lTrue = v * tFall;
+
+  hS.disabled = true; HS.disabled = true; goB.disabled = true;
+  modeRadios.forEach(r => r.disabled = true);
+  landedX = null; landedLabel = '';
+  anim = { running: true, phase: 0, t0: performance.now(), trail: [] };
+
+  function step(now){
+    const el = (now - anim.t0) / 1000;
+    let ball;
+    if(anim.phase === 0){
+      const p = Math.min(el / 0.7, 1);
+      const th = Math.PI - (Math.PI / 2) * (p * p);
+      ball = [X0 + (R - rb) * Math.cos(th), cy + (R - rb) * Math.sin(th)];
+      anim.trail.push(ball.slice());
+      if(p >= 1){ anim.phase = 1; anim.t0 = now; }
+    } else {
+      const tf = Math.min(el * 0.5, tFall);   // баяулатылған (×0.5)
+      ball = [X0 + v * tf * S, (yEnd - rb) + 0.5 * g * tf * tf * S];
+      anim.trail.push(ball.slice());
+      if(tf >= tFall){
+        anim.running = false;
+        landedX = X0 + lTrue * S;
+        if(getMode() === 'auto'){
+          const lMeas = Math.round((lTrue + (Math.random() - 0.5) * 0.004) * 1000) / 1000;
+          trials.push({ h, H: Hr, l: lMeas, lTrue, v: vFromL(lMeas, h) });
+          landedLabel = 'l = ' + lMeas.toFixed(3) + ' м';
+          goB.disabled = trials.length >= 5;
+          renderTable();
+        } else {
+          pending = { h, H: Hr, lTrue };
+          checkBox.style.display = 'block';
+          document.getElementById('lin').value = '';
+          document.getElementById('msg').textContent = '';
+          drawZoom(lTrue);
+          renderTable();
+        }
+        draw([X0 + lTrue * S, TY - rb]);
+        return;
+      }
+    }
+    draw(ball);
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// тексеру режимі: оқушы енгізген l
+function checkAnswer(){
+  if(!pending) return;
+  const msg = document.getElementById('msg');
+  const val = parseFloat(document.getElementById('lin').value.replace(',', '.'));
+  if(isNaN(val)){ msg.className = 'bad'; msg.textContent = 'Санды енгізіңіз (см-мен, мысалы 57.3).'; return; }
+  const trueCm = pending.lTrue * 100;
+  const diff = val - trueCm;
+  if(Math.abs(diff) <= 0.5){
+    const l = Math.round(val * 10) / 1000;     // см → м
+    trials.push({ h: pending.h, H: pending.H, l, lTrue: pending.lTrue, v: vFromL(l, pending.h) });
+    landedLabel = 'l = ' + l.toFixed(3) + ' м';
+    pending = null;
+    checkBox.style.display = 'none';
+    msg.textContent = '';
+    goB.disabled = trials.length >= 5;
+    renderTable();
+    draw([landedX, TY - rb]);
+  } else {
+    msg.className = 'bad';
+    msg.textContent = diff > 0
+      ? 'Қате: мәні тым үлкен. Сызғыштан шардың нүктесін қайта оқып көріңіз.'
+      : 'Қате: мәні тым кіші. Сызғыштан шардың нүктесін қайта оқып көріңіз.';
+  }
+}
+
+function renderTable(){
+  const tb = document.getElementById('tb');
+  const n = trials.length;
+  const vavg = n ? trials.reduce((s, t) => s + t.v, 0) / n : 0;
+  let html = '';
+  for(let i = 0; i < 5; i++){
+    if(trials[i]){
+      const t = trials[i];
+      html += `<tr><td>${i + 1}</td><td>${t.h.toFixed(2)}</td><td>${t.l.toFixed(3)}</td><td>${t.v.toFixed(3)}</td><td>${n === 5 ? Math.abs(t.v - vavg).toFixed(3) : '—'}</td></tr>`;
+    } else {
+      html += `<tr><td>${i + 1}</td><td></td><td></td><td></td><td></td></tr>`;
+    }
+  }
+  tb.innerHTML = html;
+
+  const res = document.getElementById('result');
+  if(n < 5){
+    res.innerHTML = `Орындалған тәжірибе: <b>${n} / 5</b>. Қалған тәжірибелерді де орындаңыз.`;
+    return;
+  }
+  const tStud = 2.78;     // Стьюдент коэффициенті, α = 0.95, n = 5
+  const sumSq = trials.reduce((s, t) => s + Math.pow(t.v - vavg, 2), 0);
+  const Sx = Math.sqrt(sumSq / (5 * 4));
+  const dv = tStud * Sx;
+  const eps = dv / vavg * 100;
+  const lavg = trials.reduce((s, t) => s + t.l, 0) / 5;
+  const H = trials[0].H, h0 = trials[0].h;
+  const vIdeal = Math.sqrt(2 * g * H);
+  const vRoll = Math.sqrt(10 * g * H / 7);
+  const dIdeal = (vavg - vIdeal) / vIdeal * 100;
+  const dRoll = (vavg - vRoll) / vRoll * 100;
+  const inside = Math.abs(vRoll - vavg) <= dv;
+
+  res.innerHTML = `
+    <b>Нәтижелер (7–9 тармақтар):</b><br>
+    υ₀орт = (υ₀₁ + υ₀₂ + υ₀₃ + υ₀₄ + υ₀₅) / 5 = <b>${vavg.toFixed(3)} м/с</b><br>
+    Орташа квадраттық ауытқу: S = √(ΣΔυ₀ᵢ² / (n(n−1))) = ${Sx.toFixed(4)} м/с<br>
+    Абсолют қателік: Δυ₀орт = t·S = ${tStud} · ${Sx.toFixed(4)} = <b>${dv.toFixed(3)} м/с</b><br>
+    Салыстырмалы қателік: ε = Δυ₀орт / υ₀орт · 100% = <b>${eps.toFixed(1)} %</b><br>
+    Жауап: υ₀ = υ₀орт ± Δυ₀орт = <b>(${vavg.toFixed(2)} ± ${dv.toFixed(2)}) м/с</b>, ε = ${eps.toFixed(1)} %<br>
+    <span class="hint">Орташа ұшу қашықтығы: l орт = ${lavg.toFixed(3)} м; ұшу уақыты t = √(2h/g) = ${Math.sqrt(2 * h0 / g).toFixed(3)} с.</span>
+    <hr>
+    <b>Теориялық мәнмен салыстыру</b> (шарды H = ${(H * 100).toFixed(0)} см биіктіктен жібердік):<br>
+    • Үйкеліссіз сырғанау: υ = √(2gH) = ${vIdeal.toFixed(3)} м/с; өлшенген мән ${dIdeal.toFixed(1)} % айырмашылық.<br>
+    • Шардың домалауын ескеру: υ = √(10gH/7) = ${vRoll.toFixed(3)} м/с; өлшенген мән ${dRoll.toFixed(1)} % айырмашылық.<br>
+    <b>Қорытынды:</b> ${inside
+      ? 'домалауды ескеретін теориялық мән өлшеу аралығының ішінде жатыр, тәжірибе теориямен сәйкес келеді.'
+      : 'домалауды ескеретін теориялық мән өлшеу аралығынан тыс жатыр. Бұл кездейсоқ қателіктен емес, жүйелі қателіктен (науадағы үйкеліс, ауа кедергісі) болады, сондықтан өлшенген жылдамдық теориялықтан сәл кіші.'}
+    Шардың бір бөлігі потенциалдық энергиясының домалау (айналу) қозғалысына кететіні үшін υ₀ шамасы √(2gH)-тан кіші болады.`;
+}
+
+function resetAll(){
+  trials = []; anim = null; landedX = null; landedLabel = ''; pending = null;
+  hS.disabled = false; HS.disabled = false; goB.disabled = false;
+  modeRadios.forEach(r => r.disabled = false);
+  checkBox.style.display = 'none';
+  renderTable();
+  document.getElementById('result').innerHTML = 'Нәтиже 5 тәжірибеден кейін шығады.';
+  draw(null);
+}
+
+goB.onclick = launch;
+document.getElementById('chk').onclick = checkAnswer;
+document.getElementById('lin').addEventListener('keydown', e => { if(e.key === 'Enter') checkAnswer(); });
+document.getElementById('reset').onclick = resetAll;
+resetAll();
+</script>
+</body>
+</html>
