@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>21-сабақ. Ньютонның екінші заңы</title>
+</head>
+<body style="margin:0;padding:16px;background:#f4f8fb">
+
+<div class="nl21" id="nl21">
+<style>
+  .nl21{font-family:Arial,sans-serif;color:#1b2a3a;max-width:860px;margin:0 auto;line-height:1.55}
+  .nl21 *{box-sizing:border-box}
+  .nl21 h2{color:#1e6a91;font-size:24px;margin:0 0 8px}
+  .nl21 h3{color:#1e6a91;font-size:20px;margin:26px 0 10px}
+  .nl21 h4{margin:0;font-size:17px}
+  .nl21 .nl21-box{background:#eaf4fa;border-left:5px solid #1e6a91;border-radius:8px;padding:12px 16px;margin:12px 0}
+  .nl21 .nl21-card{background:#fff;border:1px solid #d3dee8;border-radius:12px;padding:16px;margin:14px 0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .nl21 .nl21-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .nl21 .nl21-badge{color:#1e8449;font-weight:bold;font-size:14px}
+  .nl21 ol{padding-left:22px;margin:10px 0}
+  .nl21 li{margin:6px 0}
+  .nl21 li.nl21-hide{display:none}
+  .nl21 button{background:#1e6a91;color:#fff;border:0;border-radius:6px;padding:9px 15px;font-size:14px;cursor:pointer;margin:4px 6px 4px 0}
+  .nl21 button.sec{background:#6b7b88}
+  .nl21 button:disabled{background:#a9bcc8;cursor:not-allowed}
+  .nl21 .nl21-fields label{display:block;margin:8px 0;font-size:15px}
+  .nl21 input[type=text]{width:100px;padding:7px;font-size:15px;border:1px solid #8fa9ba;border-radius:6px;text-align:center}
+  .nl21 .nl21-mk{display:inline-block;min-width:20px;font-weight:bold}
+  .nl21 .ok{color:#1e8449}.nl21 .bad{color:#c0392b}
+  .nl21 .nl21-msg{font-weight:bold;margin-top:6px}
+  .nl21 .nl21-hintbox{background:#fff8dc;border:1px dashed #d4b24c;border-radius:8px;padding:8px 12px;margin-top:8px}
+  .nl21 .nl21-sol{background:#f3f8fc;border-radius:8px;padding:10px 10px 10px 30px}
+  .nl21 .nl21-score{font-size:16px;font-weight:bold;color:#1e6a91;margin-bottom:6px}
+  .nl21 pre{background:#f4f4f4;border-radius:8px;padding:10px;overflow:auto;font-size:13px}
+  .nl21 details{margin-top:8px}
+  .nl21 svg{max-width:260px;height:auto;display:block;margin:8px 0}
+</style>
+
+<h2>21-сабақ. Күш. Ньютонның екінші заңы. Масса</h2>
+<p>Дененің үдеуі оған әсер ететін қорытқы күшке тура пропорционал, массасына кері пропорционал, үдеудің бағыты қорытқы күштің бағытымен бірдей болады.</p>
+<div class="nl21-box">
+  <b>Негізгі формулалар:</b><br>
+  a = F / m &nbsp;&nbsp;|&nbsp;&nbsp; F = m · a &nbsp;&nbsp;|&nbsp;&nbsp; m = F / a<br>
+  Өзара перпендикуляр күштер: F = √(F₁² + F₂²)<br>
+  Бірліктер: F — Н, m — кг, a — м/с². (1 м = 100 см, 1 кг = 1000 г)
+</div>
+
+<h3>1. Үлгі есептер (шығару жолы)</h3>
+<div id="nl21-ex"></div>
+
+<h3>2. Өз бетіңше шеш</h3>
+<p>Жауабыңды өрістерге жазып, «Тексеру» батырмасын бас. Үтірді де, нүктені де қолдануға болады.</p>
+<div class="nl21-score" id="nl21-score"></div>
+<div id="nl21-list"></div>
+
+<script>
+(function(){
+  const root = document.getElementById('nl21');
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  const f = n => String(+n.toFixed(2)).replace('.', ',');
+
+  /* ---------- Үлгі есептер ---------- */
+  const examples = [
+    {
+      title: 'Үлгі есеп 1',
+      text: 'Массасы 60 кг жүргізуші 200 см/с² үдеумен қозғалған автомобиль орындығының арқасын қысатын күші қандай?',
+      svg: '',
+      steps: [
+        '<b>Берілгені:</b> m = 60 кг, a = 200 см/с². <b>Табу керек:</b> F — ?',
+        '<b>Бірлікті СИ жүйесіне келтіреміз:</b> 1 м = 100 см, сондықтан a = 200 : 100 = 2 м/с².',
+        '<b>Формуланы жазамыз</b> (Ньютонның екінші заңы): F = m · a.',
+        '<b>Сан мәндерін қоямыз:</b> F = 60 кг · 2 м/с² = 120 Н.',
+        '<b>Жауабы:</b> 120 Н.'
+      ],
+      code: '# Берілгендер\nm = 60      # кг\na = 200     # см/с²\na = a / 100 # м/с²-қа айналдыру\n# Ньютонның екінші заңы\nF = m * a\nprint(f"Жүргізушінің орындық арқасына түсіретін күші: {F:.2f} Н")'
+    },
+    {
+      title: 'Үлгі есеп 2',
+      text: 'Өзара перпендикуляр F₁ = 4 Н және F₂ = 3 Н екі күштің әсерінен дене қандай үдеумен қалай қозғалады? Дененің массасы 2 кг.',
+      svg: '<svg viewBox="0 0 240 170" role="img" aria-label="Перпендикуляр күштер">' +
+           '<defs><marker id="nl21-ah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1e6a91"/></marker></defs>' +
+           '<g stroke="#1e6a91" stroke-width="2.5" fill="none" marker-end="url(#nl21-ah)">' +
+           '<line x1="30" y1="140" x2="170" y2="140"/><line x1="30" y1="140" x2="30" y2="50"/>' +
+           '<line x1="30" y1="140" x2="170" y2="50" stroke="#c0392b"/></g>' +
+           '<circle cx="30" cy="140" r="5" fill="#2c3e50"/>' +
+           '<text x="100" y="160" font-size="14" fill="#1e6a91">F₁ = 4 Н</text>' +
+           '<text x="38" y="95" font-size="14" fill="#1e6a91">F₂ = 3 Н</text>' +
+           '<text x="115" y="85" font-size="14" fill="#c0392b">F = 5 Н</text></svg>',
+      steps: [
+        '<b>Берілгені:</b> m = 2 кг, F₁ = 4 Н, F₂ = 3 Н, F₁ ⊥ F₂. <b>Табу керек:</b> a — ?',
+        'Дененің үдеуін Ньютонның екінші заңымен табамыз: a = F / m, мұндағы F — <b>қорытқы күш</b>.',
+        'Күштер өзара перпендикуляр болғандықтан, қорытқы күшті Пифагор теоремасымен табамыз: F = √(F₁² + F₂²).',
+        'F = √(4² + 3²) = √(16 + 9) = √25 = 5 Н.',
+        'Үдеуді есептейміз: a = 5 Н / 2 кг = 2,5 м/с².',
+        '<b>Қалай қозғалады?</b> Үдеу қорытқы күштің бағытымен бағыттас. F₁ бағытымен жасайтын бұрышы: tg α = F₂ / F₁ = 3/4, α ≈ 37°.',
+        '<b>Жауабы:</b> a = 2,5 м/с², дене қорытқы күштің бағытымен (F₁-ге қарағанда шамамен 37° бұрышпен) қозғалады.'
+      ],
+      code: 'import math\nF1 = 4      # Н\nF2 = 3      # Н\nm_body = 2  # кг\n# Қорытқы күш\nF_net = math.sqrt(F1**2 + F2**2)\n# Үдеу\na_body = F_net / m_body\nprint(f"Дене {a_body:.2f} м/с² үдеумен қозғалады.")'
+    }
+  ];
+
+  const exBox = document.getElementById('nl21-ex');
+  examples.forEach((ex, i) => {
+    const d = document.createElement('div');
+    d.className = 'nl21-card';
+    d.innerHTML =
+      '<h4>' + ex.title + '</h4><p>' + ex.text + '</p>' + ex.svg +
+      '<ol class="nl21-steps">' + ex.steps.map((s, k) => '<li class="' + (k ? 'nl21-hide' : '') + '">' + s + '</li>').join('') + '</ol>' +
+      '<button data-act="next">Келесі қадам →</button><button data-act="all" class="sec">Барлығын көрсету</button><button data-act="hide" class="sec">Қайта жасыру</button>' +
+      '<details><summary>Python коды</summary><pre></pre></details>';
+    d.querySelector('pre').textContent = ex.code;
+    exBox.appendChild(d);
+  });
+
+  /* ---------- Жаттығу есептерінің генераторлары ---------- */
+  const triples = [[3,4,5],[6,8,10],[5,12,13],[9,12,15],[8,15,17]];
+
+  const gens = [
+    function(){ // 1: см/с² -> м/с²
+      const m = pick([40,50,70,80,90]), a = pick([100,150,250,300,400]);
+      const F = Math.round(m * a) / 100;
+      return {
+        text: 'Массасы ' + m + ' кг велосипедші ' + a + ' см/с² үдеумен қозғалады. Оған әсер ететін қорытқы күш қандай?',
+        fields: [{l:'F =', u:'Н', v:F}],
+        hint: 'Алдымен үдеуді м/с²-қа айналдыр: 1 м = 100 см. Сосын F = m · a.',
+        steps: ['Берілгені: m = ' + m + ' кг, a = ' + a + ' см/с².',
+                'СИ-ге келтіреміз: a = ' + a + ' : 100 = ' + f(a/100) + ' м/с².',
+                'F = m · a = ' + m + ' · ' + f(a/100) + ' = ' + f(F) + ' Н.']
+      };
+    },
+    function(){ // 2: a = F/m
+      const m = pick([2,4,5,10]), a = pick([1.5,2,2.5,3,4]);
+      const F = m * a;
+      return {
+        text: 'Массасы ' + m + ' кг денеге ' + f(F) + ' Н күш әсер етеді. Дене қандай үдеумен қозғалады?',
+        fields: [{l:'a =', u:'м/с²', v:a}],
+        hint: 'Ньютонның екінші заңынан a = F / m.',
+        steps: ['Берілгені: m = ' + m + ' кг, F = ' + f(F) + ' Н.',
+                'Формула: a = F / m.',
+                'a = ' + f(F) + ' : ' + m + ' = ' + f(a) + ' м/с².']
+      };
+    },
+    function(){ // 3: m = F/a
+      const m = pick([5,8,10,12,15]), a = pick([2,3,4,5]);
+      const F = m * a;
+      return {
+        text: 'Дене ' + F + ' Н күштің әсерінен ' + a + ' м/с² үдеумен қозғалады. Дененің массасы қандай?',
+        fields: [{l:'m =', u:'кг', v:m}],
+        hint: 'F = m · a формуласынан массаны өрнекте: m = F / a.',
+        steps: ['Берілгені: F = ' + F + ' Н, a = ' + a + ' м/с².',
+                'F = m · a болғандықтан, m = F / a.',
+                'm = ' + F + ' : ' + a + ' = ' + m + ' кг.']
+      };
+    },
+    function(){ // 4: перпендикуляр күштер
+      let t = pick(triples).slice(); if(Math.random() < .5){ const x = t[0]; t[0] = t[1]; t[1] = x; }
+      const m = pick([2,4,5]), F = t[2], a = F / m;
+      return {
+        text: 'Өзара перпендикуляр F₁ = ' + t[0] + ' Н және F₂ = ' + t[1] + ' Н екі күш массасы ' + m + ' кг денеге әсер етеді. Қорытқы күшті және дененің үдеуін табыңдар.',
+        fields: [{l:'Қорытқы күш F =', u:'Н', v:F}, {l:'Үдеу a =', u:'м/с²', v:a}],
+        hint: 'Күштер перпендикуляр болса, F = √(F₁² + F₂²). Одан кейін a = F / m.',
+        steps: ['Берілгені: F₁ = ' + t[0] + ' Н, F₂ = ' + t[1] + ' Н, m = ' + m + ' кг.',
+                'Қорытқы күш: F = √(' + t[0] + '² + ' + t[1] + '²) = √(' + (t[0]*t[0]) + ' + ' + (t[1]*t[1]) + ') = √' + (F*F) + ' = ' + F + ' Н.',
+                'Үдеу: a = F / m = ' + F + ' : ' + m + ' = ' + f(a) + ' м/с².']
+      };
+    },
+    function(){ // 5: қарама-қарсы күштер
+      const F1 = pick([30,40,50,60]), F2 = pick([10,15,20,25]), m = pick([2,4,5]);
+      const R = F1 - F2, a = R / m;
+      return {
+        text: 'Массасы ' + m + ' кг денеге бір түзу бойымен қарама-қарсы бағытталған ' + F1 + ' Н және ' + F2 + ' Н екі күш әсер етеді. Қорытқы күш пен дененің үдеуін табыңдар.',
+        fields: [{l:'Қорытқы күш F =', u:'Н', v:R}, {l:'Үдеу a =', u:'м/с²', v:a}],
+        hint: 'Қарама-қарсы бағытталған күштердің қорытқысы олардың айырмасына тең.',
+        steps: ['Берілгені: F₁ = ' + F1 + ' Н, F₂ = ' + F2 + ' Н (қарама-қарсы), m = ' + m + ' кг.',
+                'Қорытқы күш: F = F₁ − F₂ = ' + F1 + ' − ' + F2 + ' = ' + R + ' Н.',
+                'Үдеу: a = F / m = ' + R + ' : ' + m + ' = ' + f(a) + ' м/с².']
+      };
+    },
+    function(){ // 6: грамм -> кг
+      const mg = pick([200,250,400,500,800]), a = pick([2,4,5,10]);
+      const F = mg / 1000 * a;
+      return {
+        text: 'Массасы ' + mg + ' г шарға ' + a + ' м/с² үдеу беру үшін қандай күш қажет?',
+        fields: [{l:'F =', u:'Н', v:F}],
+        hint: 'Массаны кг-ға айналдыр: 1 кг = 1000 г. Сосын F = m · a.',
+        steps: ['Берілгені: m = ' + mg + ' г, a = ' + a + ' м/с².',
+                'СИ-ге келтіреміз: m = ' + mg + ' : 1000 = ' + f(mg/1000) + ' кг.',
+                'F = m · a = ' + f(mg/1000) + ' · ' + a + ' = ' + f(F) + ' Н.']
+      };
+    },
+    function(){ // 7: кері есеп
+      let t = pick(triples).slice(); if(Math.random() < .5){ const x = t[0]; t[0] = t[1]; t[1] = x; }
+      const m = pick([2,4,5]), F = t[2], a = F / m;
+      return {
+        text: 'Массасы ' + m + ' кг дене өзара перпендикуляр екі күштің әсерінен ' + f(a) + ' м/с² үдеумен қозғалады. Күштердің бірі ' + t[0] + ' Н болса, екіншісі қандай? (Алдымен қорытқы күшті табыңдар.)',
+        fields: [{l:'Қорытқы күш F =', u:'Н', v:F}, {l:'Екінші күш F₂ =', u:'Н', v:t[1]}],
+        hint: 'F = m · a. Сосын F² = F₁² + F₂² теңдігінен F₂ = √(F² − F₁²).',
+        steps: ['Берілгені: m = ' + m + ' кг, a = ' + f(a) + ' м/с², F₁ = ' + t[0] + ' Н.',
+                'Қорытқы күш: F = m · a = ' + m + ' · ' + f(a) + ' = ' + F + ' Н.',
+                'Пифагор теоремасы бойынша F² = F₁² + F₂², яғни F₂ = √(F² − F₁²).',
+                'F₂ = √(' + F + '² − ' + t[0] + '²) = √(' + (F*F) + ' − ' + (t[0]*t[0]) + ') = √' + (t[1]*t[1]) + ' = ' + t[1] + ' Н.']
+      };
+    }
+  ];
+
+  /* ---------- Жаттығу есептерін шығару ---------- */
+  const list = document.getElementById('nl21-list');
+  const slots = gens.map(g => ({ gen: g, p: null, attempts: 0, done: false }));
+
+  function updScore(){
+    const n = slots.filter(s => s.done).length;
+    document.getElementById('nl21-score').textContent = 'Шешілген есептер: ' + n + ' / ' + slots.length;
+  }
+
+  function renderSlot(i, fresh){
+    const s = slots[i];
+    if(fresh || !s.p){ s.p = s.gen(); s.attempts = 0; }
+    let card = list.querySelector('[data-i="' + i + '"]');
+    if(!card){ card = document.createElement('div'); card.className = 'nl21-card'; card.dataset.i = i; list.appendChild(card); }
+    const p = s.p;
+    card.innerHTML =
+      '<div class="nl21-head"><h4>' + (i + 1) + '-есеп</h4><span class="nl21-badge">' + (s.done ? '✓ шешілді' : '') + '</span></div>' +
+      '<p>' + p.text + '</p>' +
+      '<div class="nl21-fields">' + p.fields.map((fd, k) =>
+        '<label>' + fd.l + ' <input type="text" inputmode="decimal" data-k="' + k + '" autocomplete="off"> ' + fd.u + ' <span class="nl21-mk"></span></label>').join('') + '</div>' +
+      '<button data-act="check">Тексеру</button><button data-act="hint" class="sec">Кеңес</button>' +
+      '<button data-act="sol" class="sec" disabled>Шешуін көру</button><button data-act="new" class="sec">Жаңа сан мәндері</button>' +
+      '<div class="nl21-msg"></div><div class="nl21-hintbox" hidden></div>' +
+      '<ol class="nl21-sol" hidden>' + p.steps.map(x => '<li>' + x + '</li>').join('') + '</ol>';
+    updScore();
+  }
+
+  function check(card){
+    const i = +card.dataset.i, s = slots[i], p = s.p;
+    const msg = card.querySelector('.nl21-msg');
+    const inputs = card.querySelectorAll('input');
+    const marks = card.querySelectorAll('.nl21-mk');
+    let empty = false, all = true;
+    marks.forEach(m => { m.textContent = ''; m.className = 'nl21-mk'; });
+    inputs.forEach((inp, k) => {
+      const v = parseFloat(inp.value.replace(',', '.'));
+      if(isNaN(v)){ empty = true; return; }
+      const exp = p.fields[k].v;
+      const ok = Math.abs(v - exp) <= Math.max(0.01 * Math.abs(exp), 0.01);
+      marks[k].textContent = ok ? '✓' : '✗';
+      marks[k].className = 'nl21-mk ' + (ok ? 'ok' : 'bad');
+      if(!ok) all = false;
+    });
+    if(empty){ msg.className = 'nl21-msg bad'; msg.textContent = 'Барлық өрісті толтырыңыз.'; return; }
+    s.attempts++;
+    if(all){
+      msg.className = 'nl21-msg ok'; msg.textContent = 'Дұрыс! Жарайсың 👏';
+      s.done = true;
+      card.querySelector('.nl21-badge').textContent = '✓ шешілді';
+      card.querySelector('[data-act="sol"]').disabled = false;
+      updScore();
+    } else {
+      msg.className = 'nl21-msg bad';
+      msg.textContent = '✗ белгіленген жауаптарды қайта есептеп көр.' + (s.attempts >= 2 ? ' Қаласаң, шешуін көруге болады.' : '');
+      if(s.attempts >= 2) card.querySelector('[data-act="sol"]').disabled = false;
+    }
+  }
+
+  slots.forEach((_, i) => renderSlot(i, true));
+
+  /* ---------- Оқиғалар ---------- */
+  root.addEventListener('click', function(e){
+    const b = e.target.closest('button'); if(!b) return;
+    const act = b.dataset.act, card = b.closest('.nl21-card'); if(!card) return;
+    if(card.querySelector('.nl21-steps')){            // үлгі есеп
+      const items = card.querySelectorAll('.nl21-steps li');
+      if(act === 'next'){ for(const li of items){ if(li.classList.contains('nl21-hide')){ li.classList.remove('nl21-hide'); break; } } }
+      if(act === 'all') items.forEach(li => li.classList.remove('nl21-hide'));
+      if(act === 'hide') items.forEach((li, k) => li.classList.toggle('nl21-hide', k > 0));
+      return;
+    }
+    const i = +card.dataset.i;                        // жаттығу есебі
+    if(act === 'check') check(card);
+    if(act === 'hint'){ const hb = card.querySelector('.nl21-hintbox'); hb.textContent = '💡 ' + slots[i].p.hint; hb.hidden = false; }
+    if(act === 'sol'){ card.querySelector('.nl21-sol').hidden = false; }
+    if(act === 'new') renderSlot(i, true);
+  });
+  root.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && e.target.matches('.nl21-card input')) check(e.target.closest('.nl21-card'));
+  });
+  updScore();
+})();
+</script>
+</div>
+
+</body>
+</html>
