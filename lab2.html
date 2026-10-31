@@ -20,21 +20,26 @@
   button.sec{background:#6b7b88}
   table{width:100%;border-collapse:collapse;font-size:14px}
   th{background:#3f86a6;color:#fff;padding:8px;border:1px solid #fff}
-  td{padding:7px;border:1px solid #cdd8e3;text-align:center}
-  .res{font-size:15px;line-height:1.7}
-  .res b{color:#1e6a91}
+  td{padding:6px;border:1px solid #cdd8e3;text-align:center}
+  td input{width:90px;padding:6px;font-size:14px;border:1px solid #9bb;border-radius:5px;text-align:center}
+  td input:disabled{background:#eef1f4}
   .hint{font-size:13px;color:#567}
   .mode label{margin-right:18px;font-size:15px;cursor:pointer}
   #checkBox{display:none;margin-top:12px;padding:12px;background:#f3f8fc;border:1px dashed #8fb3c9;border-radius:8px}
   #checkBox input[type=text]{width:110px;padding:8px;font-size:15px;border:1px solid #9bb;border-radius:6px}
   #msg{margin-top:8px;font-size:14px;font-weight:bold}
-  .ok{color:#1e8449}.bad{color:#c0392b}
+  .ok{color:#1e8449;font-weight:bold}.bad{color:#c0392b;font-weight:bold}
+  .calc{display:grid;grid-template-columns:1fr;gap:10px;font-size:15px}
+  .calc .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .calc input{width:100px;padding:7px;font-size:15px;border:1px solid #9bb;border-radius:6px;text-align:center}
+  .calc input.wide{width:70px}
+  .mark{display:inline-block;min-width:20px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>№2 зертханалық жұмыс. Горизонталь лақтырылған дененің қозғалысын зерделеу</h1>
-  <div class="sub">Мақсаты: горизонталь лақтырылған дененің бастапқы жылдамдығын анықтау. Формула: υ₀ = l·√(g / 2h)</div>
+  <div class="sub">Мақсаты: горизонталь лақтырылған дененің бастапқы жылдамдығын анықтау.</div>
 
   <div class="card mode">
     <b>Режим:</b>&nbsp;
@@ -73,45 +78,61 @@
   <div class="card">
     <table>
       <thead>
-        <tr><th rowspan="2">№ р/с</th><th colspan="2">Өлшеу нәтижелері</th><th colspan="2">Есептеу нәтижелері</th></tr>
+        <tr><th rowspan="2">№ р/с</th><th colspan="2">Өлшеу нәтижелері</th><th colspan="2">Есептеу нәтижелері (өзіңіз есептеңіз)</th></tr>
         <tr><th>Биіктік h, м</th><th>Ұшу қашықтығы l, м</th><th>Бастапқы жылдамдық υ₀, м/с</th><th>Δυ₀ᵢ = |υ₀ᵢ − υ₀орт|, м/с</th></tr>
       </thead>
       <tbody id="tb"></tbody>
     </table>
+    <p class="hint">Есептеуге арналған формула: (3) υ₀ = l·√(g / 2h), g = 9,8 м/с². Нәтижені 3 таңбаға дейін дөңгелектеңіз. Үтір немесе нүктені қолдануға болады.</p>
   </div>
 
-  <div class="card res" id="result">Нәтиже 5 тәжірибеден кейін шығады.</div>
+  <div class="card calc">
+    <b>Қателікті бағалау (7–9 тармақтар)</b>
+    <div class="row">υ₀орт = <input id="c_avg"> м/с <span class="mark" id="m_avg"></span></div>
+    <div class="row">Стьюдент коэффициенті t = <input id="c_t" class="wide"> <span class="hint">(α = 0,95, n = 5 үшін №1 зертханалық жұмыстан алыңыз)</span></div>
+    <div class="row">Орташа квадраттық ауытқу S = <input id="c_S"> м/с <span class="mark" id="m_S"></span></div>
+    <div class="row">Абсолют қателік Δυ₀орт = <input id="c_d"> м/с <span class="mark" id="m_d"></span></div>
+    <div class="row">Салыстырмалы қателік ε = <input id="c_e"> % <span class="mark" id="m_e"></span></div>
+    <div class="row">Жауап: υ₀ = <input id="f_v"> ± <input id="f_d"> м/с, ε = <input id="f_e"> %</div>
+    <div class="row">
+      <button id="checkCalc">Есептеуімді тексеру</button>
+      <span class="hint">Батырма тек ✓ немесе ✗ көрсетеді, дұрыс жауапты көрсетпейді.</span>
+    </div>
+    <div id="calcMsg"></div>
+  </div>
 </div>
 
 <script>
 const g = 9.8;
-const S = 330;          // масштаб: пиксель / метр
-const X0 = 200;         // науаның ұшы (x бойынша)
-const TY = 400;         // үстел деңгейі
-const rb = 6;           // шар радиусы (px)
+const S = 330;
+const X0 = 200;
+const TY = 400;
+const rb = 6;
 const cv = document.getElementById('cv');
 const ctx = cv.getContext('2d');
 const zc = document.getElementById('zoom');
 const zx = zc.getContext('2d');
 
-let trials = [];        // {h, H, l, lTrue, v}
+let trials = [];        // {h, H, l, lTrue}
 let anim = null;
-let landedX = null;     // түсу нүктесі (px)
-let landedLabel = '';   // l жазуы (көрсетілсе)
-let pending = null;     // тексеру режимінде күтіп тұрған тәжірибе
+let landedX = null;
+let landedLabel = '';
+let pending = null;
 
 const hS = document.getElementById('h');
 const HS = document.getElementById('H');
 const goB = document.getElementById('go');
 const modeRadios = document.querySelectorAll('input[name=mode]');
 const checkBox = document.getElementById('checkBox');
+const $ = id => document.getElementById(id);
 
 function getMode(){ return document.querySelector('input[name=mode]:checked').value; }
 function getH(){ return hS.value / 100; }
 function getHr(){ return HS.value / 100; }
+function num(id){ return parseFloat($(id).value.replace(',', '.')); }
 
-hS.oninput = () => { document.getElementById('hv').textContent = hS.value; landedX = null; draw(null); };
-HS.oninput = () => { document.getElementById('Hv').textContent = HS.value; landedX = null; draw(null); };
+hS.oninput = () => { $('hv').textContent = hS.value; landedX = null; draw(null); };
+HS.oninput = () => { $('Hv').textContent = HS.value; landedX = null; draw(null); };
 
 function geom(){
   const h = getH(), R = getHr() * S;
@@ -132,11 +153,9 @@ function draw(ball){
   const {h, R, yEnd, cy} = geom();
   ctx.clearRect(0, 0, cv.width, cv.height);
 
-  // үстел
   ctx.fillStyle = '#b9c4cf'; ctx.fillRect(0, TY, cv.width, 40);
   ctx.fillStyle = '#8895a1'; ctx.fillRect(0, TY, cv.width, 3);
 
-  // сызғыш (әр 10 см)
   ctx.fillStyle = '#fff3b0';
   ctx.fillRect(X0 - 10, TY + 6, 1.0 * S + 20, 18);
   ctx.strokeStyle = '#333'; ctx.fillStyle = '#333'; ctx.font = '10px Arial'; ctx.lineWidth = 1;
@@ -147,19 +166,16 @@ function draw(ball){
   }
   ctx.fillText('см', X0 + S + 14, TY + 22);
 
-  // штатив
   const rodX = X0 - R - 30;
   ctx.fillStyle = '#555';
   ctx.fillRect(rodX - 30, TY - 8, 70, 8);
   ctx.fillRect(rodX - 2, cy - 30, 5, TY - cy + 30);
   ctx.fillRect(rodX, cy - 10, X0 - R - rodX, 4);
 
-  // науа
   ctx.strokeStyle = '#7d8790'; ctx.lineWidth = 7; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.arc(X0, cy, R + 4, Math.PI / 2, Math.PI); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(X0, yEnd + 4); ctx.lineTo(X0 + 10, yEnd + 4); ctx.stroke();
 
-  // h өлшемі
   ctx.strokeStyle = '#c0392b'; ctx.fillStyle = '#c0392b'; ctx.lineWidth = 1.5;
   const hx = X0 + 40;
   ctx.setLineDash([4, 3]);
@@ -169,7 +185,6 @@ function draw(ball){
   ctx.font = 'bold 14px Arial';
   ctx.fillText('h = ' + h.toFixed(2) + ' м', hx + 8, (yEnd + TY) / 2);
 
-  // траектория
   if(anim && anim.trail){
     ctx.strokeStyle = 'rgba(30,106,145,.6)'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
     ctx.beginPath();
@@ -177,11 +192,9 @@ function draw(ball){
     ctx.stroke(); ctx.setLineDash([]);
   }
 
-  // алдыңғы түсу нүктелері
   ctx.fillStyle = '#e67e22';
   trials.forEach(t => { ctx.beginPath(); ctx.arc(X0 + t.lTrue * S, TY - 2, 3, 0, 7); ctx.fill(); });
 
-  // l өлшемі
   if(landedX !== null && landedLabel){
     ctx.strokeStyle = '#27ae60'; ctx.fillStyle = '#27ae60'; ctx.lineWidth = 1.5;
     const ly = TY - 18;
@@ -190,7 +203,6 @@ function draw(ball){
     ctx.fillText(landedLabel, (X0 + landedX) / 2 - 38, ly - 8);
   }
 
-  // шар
   const bp = ball ? ball : [X0 - (R - rb), cy];
   ctx.fillStyle = '#2c3e50';
   ctx.beginPath(); ctx.arc(bp[0], bp[1], rb, 0, 7); ctx.fill();
@@ -200,7 +212,6 @@ function draw(ball){
   ctx.fillText('2-сурет. Қондырғы', 16, 24);
 }
 
-// ұлғайтылған сызғыш (10 см аралық, 1 мм бөлік)
 function drawZoom(lTrue){
   const startCm = Math.floor(lTrue * 100) - 5;
   const pxPerCm = zc.width / 10;
@@ -215,15 +226,12 @@ function drawZoom(lTrue){
     if(mm % 10 === 0) zx.fillText(startCm + mm / 10, x + 3, 95);
   }
   zx.fillText('см', zc.width - 24, 118);
-  // шардың түскен нүктесі
   const bx = (lTrue * 100 - startCm) * pxPerCm;
   zx.strokeStyle = '#e67e22'; zx.fillStyle = '#e67e22'; zx.lineWidth = 2;
   zx.beginPath(); zx.moveTo(bx, 20); zx.lineTo(bx, 50); zx.stroke();
   zx.beginPath(); zx.arc(bx, 14, 8, 0, 7); zx.fill();
   zx.font = 'bold 13px Arial'; zx.fillText('шар', bx + 12, 18);
 }
-
-function vFromL(l, h){ return l * Math.sqrt(g / (2 * h)); }
 
 function launch(){
   if(anim && anim.running) return;
@@ -232,7 +240,6 @@ function launch(){
   const {h, R, yEnd, cy} = geom();
   const Hr = getHr();
 
-  // модель: домалайтын шар (10/7) + шамалы үйкеліс + кездейсоқ ауытқу
   const rnd = (Math.random() * 2 - 1);
   const v = Math.sqrt(10 / 7 * g * Hr) * 0.97 * (1 + 0.025 * rnd);
   const tFall = Math.sqrt(2 * h / g);
@@ -253,7 +260,7 @@ function launch(){
       anim.trail.push(ball.slice());
       if(p >= 1){ anim.phase = 1; anim.t0 = now; }
     } else {
-      const tf = Math.min(el * 0.5, tFall);   // баяулатылған (×0.5)
+      const tf = Math.min(el * 0.5, tFall);
       ball = [X0 + v * tf * S, (yEnd - rb) + 0.5 * g * tf * tf * S];
       anim.trail.push(ball.slice());
       if(tf >= tFall){
@@ -261,17 +268,16 @@ function launch(){
         landedX = X0 + lTrue * S;
         if(getMode() === 'auto'){
           const lMeas = Math.round((lTrue + (Math.random() - 0.5) * 0.004) * 1000) / 1000;
-          trials.push({ h, H: Hr, l: lMeas, lTrue, v: vFromL(lMeas, h) });
+          trials.push({ h, H: Hr, l: lMeas, lTrue });
           landedLabel = 'l = ' + lMeas.toFixed(3) + ' м';
           goB.disabled = trials.length >= 5;
-          renderTable();
+          fillRows();
         } else {
           pending = { h, H: Hr, lTrue };
           checkBox.style.display = 'block';
-          document.getElementById('lin').value = '';
-          document.getElementById('msg').textContent = '';
+          $('lin').value = '';
+          $('msg').textContent = '';
           drawZoom(lTrue);
-          renderTable();
         }
         draw([X0 + lTrue * S, TY - rb]);
         return;
@@ -283,23 +289,22 @@ function launch(){
   requestAnimationFrame(step);
 }
 
-// тексеру режимі: оқушы енгізген l
 function checkAnswer(){
   if(!pending) return;
-  const msg = document.getElementById('msg');
-  const val = parseFloat(document.getElementById('lin').value.replace(',', '.'));
+  const msg = $('msg');
+  const val = parseFloat($('lin').value.replace(',', '.'));
   if(isNaN(val)){ msg.className = 'bad'; msg.textContent = 'Санды енгізіңіз (см-мен, мысалы 57.3).'; return; }
   const trueCm = pending.lTrue * 100;
   const diff = val - trueCm;
   if(Math.abs(diff) <= 0.5){
-    const l = Math.round(val * 10) / 1000;     // см → м
-    trials.push({ h: pending.h, H: pending.H, l, lTrue: pending.lTrue, v: vFromL(l, pending.h) });
+    const l = Math.round(val * 10) / 1000;
+    trials.push({ h: pending.h, H: pending.H, l, lTrue: pending.lTrue });
     landedLabel = 'l = ' + l.toFixed(3) + ' м';
     pending = null;
     checkBox.style.display = 'none';
     msg.textContent = '';
     goB.disabled = trials.length >= 5;
-    renderTable();
+    fillRows();
     draw([landedX, TY - rb]);
   } else {
     msg.className = 'bad';
@@ -309,55 +314,96 @@ function checkAnswer(){
   }
 }
 
-function renderTable(){
-  const tb = document.getElementById('tb');
-  const n = trials.length;
-  const vavg = n ? trials.reduce((s, t) => s + t.v, 0) / n : 0;
+// кестені бір рет құру (енгізу өрістері сақталады)
+function buildTable(){
   let html = '';
   for(let i = 0; i < 5; i++){
-    if(trials[i]){
-      const t = trials[i];
-      html += `<tr><td>${i + 1}</td><td>${t.h.toFixed(2)}</td><td>${t.l.toFixed(3)}</td><td>${t.v.toFixed(3)}</td><td>${n === 5 ? Math.abs(t.v - vavg).toFixed(3) : '—'}</td></tr>`;
-    } else {
-      html += `<tr><td>${i + 1}</td><td></td><td></td><td></td><td></td></tr>`;
+    html += `<tr>
+      <td>${i + 1}</td>
+      <td id="th${i}"></td>
+      <td id="tl${i}"></td>
+      <td><input id="v${i}" disabled> <span class="mark" id="mv${i}"></span></td>
+      <td><input id="d${i}" disabled> <span class="mark" id="md${i}"></span></td>
+    </tr>`;
+  }
+  $('tb').innerHTML = html;
+}
+
+function fillRows(){
+  trials.forEach((t, i) => {
+    $('th' + i).textContent = t.h.toFixed(2);
+    $('tl' + i).textContent = t.l.toFixed(3);
+    $('v' + i).disabled = false;
+    $('d' + i).disabled = false;
+  });
+}
+
+function mark(id, ok){
+  const el = $(id);
+  el.textContent = ok ? '✓' : '✗';
+  el.className = 'mark ' + (ok ? 'ok' : 'bad');
+}
+function clearMarks(){
+  document.querySelectorAll('.mark').forEach(m => { m.textContent = ''; m.className = 'mark'; });
+  $('calcMsg').textContent = '';
+}
+
+function checkCalc(){
+  clearMarks();
+  const msgEl = $('calcMsg');
+  if(trials.length < 5){
+    msgEl.className = 'bad'; msgEl.textContent = 'Алдымен 5 тәжірибені орындаңыз.'; return;
+  }
+  let allOk = true, empty = false;
+  const vs = [], ds = [];
+  for(let i = 0; i < 5; i++){
+    const v = num('v' + i), d = num('d' + i);
+    if(isNaN(v) || isNaN(d)){ empty = true; continue; }
+    vs.push(v); ds.push(d);
+    const t = trials[i];
+    const vTrue = t.l * Math.sqrt(g / (2 * t.h));
+    const okV = Math.abs(v - vTrue) <= 0.01 * vTrue;
+    mark('mv' + i, okV); if(!okV) allOk = false;
+  }
+  const avg = num('c_avg');
+  if(!isNaN(avg) && vs.length === 5){
+    const myAvg = vs.reduce((a, b) => a + b, 0) / 5;
+    const ok = Math.abs(avg - myAvg) <= 0.006;
+    mark('m_avg', ok); if(!ok) allOk = false;
+    for(let i = 0; i < 5; i++){
+      const okD = Math.abs(ds[i] - Math.abs(vs[i] - avg)) <= 0.006;
+      mark('md' + i, okD); if(!okD) allOk = false;
     }
-  }
-  tb.innerHTML = html;
+  } else empty = true;
 
-  const res = document.getElementById('result');
-  if(n < 5){
-    res.innerHTML = `Орындалған тәжірибе: <b>${n} / 5</b>. Қалған тәжірибелерді де орындаңыз.`;
-    return;
-  }
-  const tStud = 2.78;     // Стьюдент коэффициенті, α = 0.95, n = 5
-  const sumSq = trials.reduce((s, t) => s + Math.pow(t.v - vavg, 2), 0);
-  const Sx = Math.sqrt(sumSq / (5 * 4));
-  const dv = tStud * Sx;
-  const eps = dv / vavg * 100;
-  const lavg = trials.reduce((s, t) => s + t.l, 0) / 5;
-  const H = trials[0].H, h0 = trials[0].h;
-  const vIdeal = Math.sqrt(2 * g * H);
-  const vRoll = Math.sqrt(10 * g * H / 7);
-  const dIdeal = (vavg - vIdeal) / vIdeal * 100;
-  const dRoll = (vavg - vRoll) / vRoll * 100;
-  const inside = Math.abs(vRoll - vavg) <= dv;
+  const Sv = num('c_S'), tv = num('c_t'), dv = num('c_d'), ev = num('c_e');
+  let SmyTheo = null;
+  if(ds.length === 5) SmyTheo = Math.sqrt(ds.reduce((a, b) => a + b * b, 0) / 20);
+  if(!isNaN(Sv) && SmyTheo !== null){
+    const ok = Math.abs(Sv - SmyTheo) <= 0.15 * SmyTheo + 0.002;
+    mark('m_S', ok); if(!ok) allOk = false;
+  } else empty = true;
+  if(!isNaN(dv) && !isNaN(tv) && !isNaN(Sv)){
+    const exp = tv * Sv;
+    const ok = Math.abs(dv - exp) <= 0.03 * exp + 0.003;
+    mark('m_d', ok); if(!ok) allOk = false;
+  } else empty = true;
+  if(!isNaN(ev) && !isNaN(dv) && !isNaN(avg) && avg !== 0){
+    const exp = dv / avg * 100;
+    const ok = Math.abs(ev - exp) <= 0.03 * exp + 0.2;
+    mark('m_e', ok); if(!ok) allOk = false;
+  } else empty = true;
 
-  res.innerHTML = `
-    <b>Нәтижелер (7–9 тармақтар):</b><br>
-    υ₀орт = (υ₀₁ + υ₀₂ + υ₀₃ + υ₀₄ + υ₀₅) / 5 = <b>${vavg.toFixed(3)} м/с</b><br>
-    Орташа квадраттық ауытқу: S = √(ΣΔυ₀ᵢ² / (n(n−1))) = ${Sx.toFixed(4)} м/с<br>
-    Абсолют қателік: Δυ₀орт = t·S = ${tStud} · ${Sx.toFixed(4)} = <b>${dv.toFixed(3)} м/с</b><br>
-    Салыстырмалы қателік: ε = Δυ₀орт / υ₀орт · 100% = <b>${eps.toFixed(1)} %</b><br>
-    Жауап: υ₀ = υ₀орт ± Δυ₀орт = <b>(${vavg.toFixed(2)} ± ${dv.toFixed(2)}) м/с</b>, ε = ${eps.toFixed(1)} %<br>
-    <span class="hint">Орташа ұшу қашықтығы: l орт = ${lavg.toFixed(3)} м; ұшу уақыты t = √(2h/g) = ${Math.sqrt(2 * h0 / g).toFixed(3)} с.</span>
-    <hr>
-    <b>Теориялық мәнмен салыстыру</b> (шарды H = ${(H * 100).toFixed(0)} см биіктіктен жібердік):<br>
-    • Үйкеліссіз сырғанау: υ = √(2gH) = ${vIdeal.toFixed(3)} м/с; өлшенген мән ${dIdeal.toFixed(1)} % айырмашылық.<br>
-    • Шардың домалауын ескеру: υ = √(10gH/7) = ${vRoll.toFixed(3)} м/с; өлшенген мән ${dRoll.toFixed(1)} % айырмашылық.<br>
-    <b>Қорытынды:</b> ${inside
-      ? 'домалауды ескеретін теориялық мән өлшеу аралығының ішінде жатыр, тәжірибе теориямен сәйкес келеді.'
-      : 'домалауды ескеретін теориялық мән өлшеу аралығынан тыс жатыр. Бұл кездейсоқ қателіктен емес, жүйелі қателіктен (науадағы үйкеліс, ауа кедергісі) болады, сондықтан өлшенген жылдамдық теориялықтан сәл кіші.'}
-    Шардың бір бөлігі потенциалдық энергиясының домалау (айналу) қозғалысына кететіні үшін υ₀ шамасы √(2gH)-тан кіші болады.`;
+  if(empty){
+    msgEl.className = 'bad';
+    msgEl.textContent = 'Барлық өрісті толтырыңыз, сосын тексеріңіз.';
+  } else if(allOk){
+    msgEl.className = 'ok';
+    msgEl.textContent = 'Барлық есептеулер дұрыс ✓. Енді соңғы жауапты жазып, қорытынды жасаңыз.';
+  } else {
+    msgEl.className = 'bad';
+    msgEl.textContent = '✗ белгіленген өрістерді қайта есептеңіз.';
+  }
 }
 
 function resetAll(){
@@ -365,15 +411,17 @@ function resetAll(){
   hS.disabled = false; HS.disabled = false; goB.disabled = false;
   modeRadios.forEach(r => r.disabled = false);
   checkBox.style.display = 'none';
-  renderTable();
-  document.getElementById('result').innerHTML = 'Нәтиже 5 тәжірибеден кейін шығады.';
+  buildTable();
+  ['c_avg','c_t','c_S','c_d','c_e','f_v','f_d','f_e'].forEach(id => $(id).value = '');
+  clearMarks();
   draw(null);
 }
 
 goB.onclick = launch;
-document.getElementById('chk').onclick = checkAnswer;
-document.getElementById('lin').addEventListener('keydown', e => { if(e.key === 'Enter') checkAnswer(); });
-document.getElementById('reset').onclick = resetAll;
+$('chk').onclick = checkAnswer;
+$('lin').addEventListener('keydown', e => { if(e.key === 'Enter') checkAnswer(); });
+$('reset').onclick = resetAll;
+$('checkCalc').onclick = checkCalc;
 resetAll();
 </script>
 </body>
