@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>№4 зертханалық жұмыс: беттік толқындардың таралу жылдамдығы</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:Arial,sans-serif;margin:0;background:#eef3f8;color:#1b2a3a}
+  .wrap{max-width:900px;margin:0 auto;padding:16px}
+  h1{font-size:20px;color:#1e6a91;margin:0 0 4px}
+  .sub{font-size:14px;color:#456;margin-bottom:12px}
+  .card{background:#fff;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  canvas{width:100%;height:auto;background:#fafcff;border:1px solid #cdd8e3;border-radius:8px;display:block}
+  .controls{display:flex;flex-wrap:wrap;gap:18px;align-items:center}
+  .ctrl label{display:block;font-size:14px;margin-bottom:4px}
+  .ctrl input[type=range]{width:220px}
+  .ctrl select{padding:8px;font-size:14px;border-radius:6px;border:1px solid #9bb}
+  button{background:#1e6a91;color:#fff;border:0;border-radius:6px;padding:10px 18px;font-size:15px;cursor:pointer}
+  button:disabled{background:#9db4c2;cursor:not-allowed}
+  button.sec{background:#6b7b88}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{background:#3f86a6;color:#fff;padding:8px;border:1px solid #fff}
+  td{padding:6px;border:1px solid #cdd8e3;text-align:center}
+  td input{width:90px;padding:6px;font-size:14px;border:1px solid #9bb;border-radius:5px;text-align:center}
+  td input:disabled{background:#eef1f4}
+  .hint{font-size:13px;color:#567}
+  .ok{color:#1e8449;font-weight:bold}.bad{color:#c0392b;font-weight:bold}
+  .calc{display:grid;grid-template-columns:1fr;gap:10px;font-size:15px}
+  .calc .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .calc input{width:100px;padding:7px;font-size:15px;border:1px solid #9bb;border-radius:6px;text-align:center}
+  .calc input.wide{width:70px}
+  .mark{display:inline-block;min-width:20px}
+  .status{font-size:15px;margin-top:10px}
+  .status b{color:#1e6a91}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>№4 зертханалық жұмыс. Беттік толқындардың таралу жылдамдығын анықтау</h1>
+  <div class="sub">Мақсаты: су бетіндегі толқындардың таралу жылдамдығын өлшеу.</div>
+
+  <div class="card">
+    <canvas id="cv" width="800" height="400"></canvas>
+    <div class="status">Секундомер: <b id="sw">0.00</b> с</div>
+  </div>
+
+  <div class="card">
+    <div class="controls">
+      <div class="ctrl">
+        <label>Ыдыстың (кюветаның) ұзындығы l: <b id="lv">30</b> см</label>
+        <input type="range" id="L" min="20" max="40" value="30" step="1">
+      </div>
+      <div class="ctrl">
+        <label>Анимация жылдамдығы</label>
+        <select id="spd">
+          <option value="1">1× (нақты уақыт)</option>
+          <option value="0.5">0,5×</option>
+          <option value="0.25" selected>0,25×</option>
+        </select>
+      </div>
+      <button id="go">Қалтқыны тастау</button>
+      <button id="reset" class="sec">Қайта бастау</button>
+    </div>
+    <p class="hint">Секундомер қалтқы суға түскен сәтте қосылып, толқын қарама-қарсы шетіне жеткенде тоқтайды. Бірінші тәжірибеден кейін l өзгертілмейді (4-тармақ: тәжірибені 5 рет қайталаңдар). Өзгерту үшін «Қайта бастау» батырмасын басыңыз.</p>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th rowspan="2">№ р/с</th><th colspan="2">Өлшеу нәтижелері</th><th colspan="1">Есептеу нәтижесі (өзіңіз есептеңіз)</th></tr>
+        <tr><th>Уақыт t, с</th><th>Ыдыстың (кюветаның) ұзындығы l, м</th><th>Толқынның жылдамдығы υ, м/с</th></tr>
+      </thead>
+      <tbody id="tb"></tbody>
+    </table>
+    <p class="hint">Формула: υ = l / t. Нәтижені 3 таңбаға дейін дөңгелектеңіз. Үтір немесе нүктені қолдануға болады.</p>
+  </div>
+
+  <div class="card calc">
+    <b>Қателікті бағалау (6–8 тармақтар)</b>
+    <div class="row">υ<sub>орт</sub> = (υ₁ + υ₂ + υ₃ + υ₄ + υ₅) / 5 = <input id="c_avg"> м/с <span class="mark" id="m_avg"></span></div>
+    <div class="row">Орташа квадраттық ауытқу S = <input id="c_S"> м/с <span class="mark" id="m_S"></span></div>
+    <div class="row">Стьюдент коэффициенті t = <input id="c_t" class="wide"> <span class="mark" id="m_t"></span> <span class="hint">(α = 0,95, n = 5 үшін №1 зертханалық жұмыстан алыңыз)</span></div>
+    <div class="row">Абсолют қателік Δυ<sub>орт</sub> = <input id="c_d"> м/с <span class="mark" id="m_d"></span></div>
+    <div class="row">Салыстырмалы қателік ε = Δυ<sub>орт</sub> / υ<sub>орт</sub> · 100% = <input id="c_e"> % <span class="mark" id="m_e"></span></div>
+    <div class="row">Жауап: υ = <input id="f_v"> ± <input id="f_d"> м/с, ε = <input id="f_e"> %</div>
+    <div class="row">
+      <button id="checkCalc">Есептеуімді тексеру</button>
+      <span class="hint">Батырма тек ✓ немесе ✗ көрсетеді, дұрыс жауапты көрсетпейді.</span>
+    </div>
+    <div id="calcMsg"></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const SC = 1600;        // масштаб: пиксель / метр
+const X0 = 80, Y0 = 90, H = 190;
+const V0 = 0.25;        // толқын жылдамдығының ішкі мәні, м/с
+
+let trials = [];
+let running = false;
+let rafId = null;
+let R = null;           // толқын фронтының радиусы (м), null болса толқын жоқ
+let arrived = false;
+
+const Ls = $('L'), goB = $('go');
+function getL(){ return Ls.value / 100; }
+function num(id){ return parseFloat($(id).value.replace(',', '.')); }
+
+Ls.oninput = () => { $('lv').textContent = Ls.value; R = null; arrived = false; draw(); };
+
+function draw(){
+  const L = getL(), W = L * SC, cy = Y0 + H / 2;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+
+  // кюветаның сыртқы жиегі
+  ctx.fillStyle = '#c9d2da';
+  ctx.fillRect(X0 - 12, Y0 - 12, W + 24, H + 24);
+
+  // су
+  const gr = ctx.createLinearGradient(0, Y0, 0, Y0 + H);
+  gr.addColorStop(0, '#bfe3f7'); gr.addColorStop(1, '#8ecbea');
+  ctx.fillStyle = gr;
+  ctx.fillRect(X0, Y0, W, H);
+
+  // толқындар (кювета ішінде қиылады)
+  ctx.save();
+  ctx.beginPath(); ctx.rect(X0, Y0, W, H); ctx.clip();
+  if(R !== null){
+    for(let k = 0; k < 6; k++){
+      const r = R - k * 0.014;
+      if(r <= 0) continue;
+      ctx.strokeStyle = 'rgba(30,106,145,' + (0.9 - k * 0.14).toFixed(2) + ')';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.arc(X0, cy, r * SC, 0, 7); ctx.stroke();
+    }
+  }
+  ctx.restore();
+
+  // қарама-қарсы шетті белгілеу
+  if(arrived){
+    ctx.strokeStyle = '#27ae60'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(X0 + W, Y0); ctx.lineTo(X0 + W, Y0 + H); ctx.stroke();
+  }
+
+  // қалтқы
+  ctx.fillStyle = '#e67e22';
+  ctx.beginPath(); ctx.arc(X0 + 8, cy, 7, 0, 7); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(X0 + 6, cy - 2, 2, 0, 7); ctx.fill();
+
+  // сызғыш (түбінде)
+  const ry = Y0 + H + 34;
+  ctx.fillStyle = '#fff3b0';
+  ctx.fillRect(X0 - 6, ry, W + 12, 22);
+  ctx.strokeStyle = '#333'; ctx.fillStyle = '#333'; ctx.lineWidth = 1; ctx.font = '11px Arial';
+  for(let c = 0; c <= Math.round(L * 100); c++){
+    const x = X0 + c * 0.01 * SC;
+    const len = c % 10 === 0 ? 16 : (c % 5 === 0 ? 12 : 7);
+    ctx.beginPath(); ctx.moveTo(x, ry); ctx.lineTo(x, ry + len); ctx.stroke();
+    if(c % 5 === 0) ctx.fillText(c, x - 5, ry + 20);
+  }
+  ctx.fillText('см', X0 + W + 14, ry + 16);
+
+  // l өлшемі
+  ctx.strokeStyle = '#c0392b'; ctx.fillStyle = '#c0392b'; ctx.lineWidth = 1.5;
+  const ay = Y0 - 32;
+  arrow(X0, ay, X0 + W, ay); arrow(X0 + W, ay, X0, ay);
+  ctx.font = 'bold 14px Arial';
+  ctx.fillText('l = ' + L.toFixed(2) + ' м', X0 + W / 2 - 34, ay - 8);
+
+  ctx.fillStyle = '#334'; ctx.font = '13px Arial';
+  ctx.fillText('3-сурет. Кювета (үстінен қарағанда)', 16, 24);
+}
+
+function arrow(x1, y1, x2, y2){
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  const a = Math.atan2(y2 - y1, x2 - x1);
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - 8 * Math.cos(a - .4), y2 - 8 * Math.sin(a - .4));
+  ctx.lineTo(x2 - 8 * Math.cos(a + .4), y2 - 8 * Math.sin(a + .4));
+  ctx.closePath(); ctx.fill();
+}
+
+function launch(){
+  if(running || trials.length >= 5) return;
+  const L = getL();
+  const v = V0 * (1 + 0.03 * (Math.random() * 2 - 1));
+  const tTrue = L / v;
+  const noise = (Math.random() * 2 - 1) * 0.08;        // адам реакциясының қателігі
+  const tMeas = Math.round((tTrue + noise) * 100) / 100;
+  const speed = parseFloat($('spd').value);
+
+  Ls.disabled = true; goB.disabled = true; running = true;
+  arrived = false; R = 0;
+  const t0 = performance.now();
+
+  function step(now){
+    const ts = (now - t0) / 1000 * speed;
+    const done = ts >= tTrue;
+    R = done ? L : v * ts;
+    $('sw').textContent = (done ? tMeas : ts).toFixed(2);
+    if(done){
+      running = false; arrived = true;
+      draw();
+      trials.push({ l: Math.round(L * 1000) / 1000, t: tMeas });
+      fillRows();
+      goB.disabled = trials.length >= 5;
+      return;
+    }
+    draw();
+    rafId = requestAnimationFrame(step);
+  }
+  rafId = requestAnimationFrame(step);
+}
+
+function buildTable(){
+  let html = '';
+  for(let i = 0; i < 5; i++){
+    html += `<tr>
+      <td>${i + 1}</td>
+      <td id="tt${i}"></td>
+      <td id="tl${i}"></td>
+      <td><input id="v${i}" disabled> <span class="mark" id="mv${i}"></span></td>
+    </tr>`;
+  }
+  $('tb').innerHTML = html;
+}
+
+function fillRows(){
+  trials.forEach((t, i) => {
+    $('tt' + i).textContent = t.t.toFixed(2);
+    $('tl' + i).textContent = t.l.toFixed(3);
+    $('v' + i).disabled = false;
+  });
+}
+
+function mark(id, ok){
+  const el = $(id);
+  el.textContent = ok ? '✓' : '✗';
+  el.className = 'mark ' + (ok ? 'ok' : 'bad');
+}
+function clearMarks(){
+  document.querySelectorAll('.mark').forEach(m => { m.textContent = ''; m.className = 'mark'; });
+  $('calcMsg').textContent = '';
+}
+
+function checkCalc(){
+  clearMarks();
+  const msg = $('calcMsg');
+  if(trials.length < 5){
+    msg.className = 'bad'; msg.textContent = 'Алдымен 5 тәжірибені орындаңыз.'; return;
+  }
+  let allOk = true, empty = false;
+  const vs = [];
+  for(let i = 0; i < 5; i++){
+    const v = num('v' + i);
+    if(isNaN(v)){ empty = true; continue; }
+    vs.push(v);
+    const exp = trials[i].l / trials[i].t;
+    const ok = Math.abs(v - exp) <= 0.01 * exp;
+    mark('mv' + i, ok); if(!ok) allOk = false;
+  }
+  const avg = num('c_avg'), Sv = num('c_S'), tv = num('c_t'), dv = num('c_d'), ev = num('c_e');
+
+  if(!isNaN(avg) && vs.length === 5){
+    const myAvg = vs.reduce((a, b) => a + b, 0) / 5;
+    const ok = Math.abs(avg - myAvg) <= 0.01 * myAvg + 0.001;
+    mark('m_avg', ok); if(!ok) allOk = false;
+  } else empty = true;
+
+  if(!isNaN(Sv) && !isNaN(avg) && vs.length === 5){
+    const sumSq = vs.reduce((s, v) => s + (v - avg) * (v - avg), 0);
+    const exp = Math.sqrt(sumSq / 20);
+    const ok = Math.abs(Sv - exp) <= 0.15 * exp + 0.0005;
+    mark('m_S', ok); if(!ok) allOk = false;
+  } else empty = true;
+
+  if(!isNaN(tv)){
+    const ok = tv >= 2.7 && tv <= 2.8;
+    mark('m_t', ok); if(!ok) allOk = false;
+  } else empty = true;
+
+  if(!isNaN(dv) && !isNaN(tv) && !isNaN(Sv)){
+    const exp = tv * Sv;
+    const ok = Math.abs(dv - exp) <= 0.03 * exp + 0.0005;
+    mark('m_d', ok); if(!ok) allOk = false;
+  } else empty = true;
+
+  if(!isNaN(ev) && !isNaN(dv) && !isNaN(avg) && avg !== 0){
+    const exp = dv / avg * 100;
+    const ok = Math.abs(ev - exp) <= 0.03 * exp + 0.2;
+    mark('m_e', ok); if(!ok) allOk = false;
+  } else empty = true;
+
+  if(empty){
+    msg.className = 'bad'; msg.textContent = 'Барлық өрісті толтырыңыз, сосын тексеріңіз.';
+  } else if(allOk){
+    msg.className = 'ok'; msg.textContent = 'Барлық есептеулер дұрыс ✓. Енді соңғы жауапты жазып, қорытынды жасаңыз.';
+  } else {
+    msg.className = 'bad'; msg.textContent = '✗ белгіленген өрістерді қайта есептеңіз.';
+  }
+}
+
+function resetAll(){
+  if(rafId) cancelAnimationFrame(rafId);
+  trials = []; running = false; R = null; arrived = false;
+  Ls.disabled = false; goB.disabled = false;
+  $('sw').textContent = '0.00';
+  buildTable();
+  ['c_avg','c_S','c_t','c_d','c_e','f_v','f_d','f_e'].forEach(id => $(id).value = '');
+  clearMarks();
+  draw();
+}
+
+goB.onclick = launch;
+$('reset').onclick = resetAll;
+$('checkCalc').onclick = checkCalc;
+resetAll();
+</script>
+</body>
+</html>
