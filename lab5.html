@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ΣF = ma: ауырлық күші және реакция күші</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:Arial,sans-serif;margin:0;background:#eef3f8;color:#1b2a3a}
+  .wrap{max-width:980px;margin:0 auto;padding:16px}
+  h1{font-size:22px;color:#1e6a91;margin:0 0 4px}
+  h3{font-size:17px;color:#1e6a91;margin:0 0 8px}
+  .sub{font-size:14px;color:#456;margin-bottom:12px}
+  .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+  canvas{width:100%;height:auto;border:1px solid #cdd8e3;border-radius:10px;display:block}
+  button{background:#1e6a91;color:#fff;border:0;border-radius:6px;padding:9px 14px;font-size:14px;cursor:pointer;margin:3px 4px 3px 0}
+  button.sec{background:#6b7b88}
+  button.green{background:#1e8449}
+  select{padding:6px;font-size:14px;border-radius:6px;border:1px solid #9bb}
+  .read{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:10px}
+  .read div{background:#f3f8fc;border-radius:8px;padding:8px;text-align:center;font-size:13px;color:#567}
+  .read b{display:block;font-size:19px;color:#1e6a91;margin-top:2px}
+  .ctr{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;font-size:14px}
+  .ctr input[type=range]{width:100%}
+  .hint{font-size:13px;color:#567}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.two{grid-template-columns:1fr}}
+  .formula{background:#eaf4fa;border-left:5px solid #1e6a91;border-radius:8px;padding:10px 14px;font-size:15px;line-height:1.7}
+  .formula big{font-size:18px;color:#1e6a91}
+  .pred input[type=text]{width:90px;padding:7px;font-size:15px;border:1px solid #8fa9ba;border-radius:6px;text-align:center}
+  .pred .row{margin:8px 0;font-size:15px}
+  .mk{display:inline-block;min-width:20px;font-weight:bold}
+  .ok{color:#1e8449}.bad{color:#c0392b}
+  .task{background:#fff8dc;border:1px dashed #d4b24c;border-radius:8px;padding:10px 12px;font-size:15px;line-height:1.6;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Ньютонның екінші заңы: ауырлық күші және реакция күші</h1>
+  <div class="sub">Дененің жанынан көрінісі. Денеге ауырлық күші mg және тіректің реакция күші N әсер етеді. Қорытқы күш ΣF = ma үдеуді анықтайды. Көлбеу жазықтықты, үйкелісті және тарту күшін қосып көріңіз.</div>
+
+  <div class="card">
+    <canvas id="cv" width="900" height="560"></canvas>
+    <div class="read">
+      <div>Реакция күші N<b id="rN">0 Н</b></div>
+      <div>Қорытқы күш ΣF<b id="rS">0 Н</b></div>
+      <div>Үдеу a<b id="rA">0 м/с²</b></div>
+      <div>Жылдамдық υ<b id="rV">0 м/с</b></div>
+      <div>Жол бойындағы орны<b id="rD">5 м</b></div>
+      <div>Уақыт t<b id="rT">0 с</b></div>
+    </div>
+    <div style="margin-top:10px">
+      <button id="go">▶ Бастау</button>
+      <button id="reset" class="sec">⟲ Қайта бастау</button>
+    </div>
+    <div id="stat" class="hint" style="font-weight:bold;min-height:18px"></div>
+    <p class="hint">Көрсеткілердің ұзындығы күштің шамасына пропорционал. Барлық күш дененің центрінен басталады (бос дене диаграммасы). Үдеу мен жылдамдық жазықтық бойымен жоғары бағытталса, оң деп алынады.</p>
+  </div>
+
+  <div class="card">
+    <h3>Параметрлер</h3>
+    <div class="ctr">
+      <div>Масса m: <b id="mv"></b> кг<br><input type="range" id="m" min="1" max="10" value="4" step="1"></div>
+      <div>Жазықтықтың еңкею бұрышы θ: <b id="thv"></b>°<br><input type="range" id="th" min="0" max="45" value="0" step="5"></div>
+      <div>Үйкеліс коэффициенті μ: <b id="muv"></b><br><input type="range" id="mu" min="0" max="0.6" value="0.2" step="0.05"></div>
+      <div>Тарту күші F (жазықтыққа β бұрышпен): <b id="Fv"></b> Н<br><input type="range" id="F" min="0" max="60" value="0" step="1"></div>
+      <div>Тарту күшінің бағыты β: <b id="bev"></b>°<br><input type="range" id="be" min="0" max="60" value="0" step="5"></div>
+      <div>Бастапқы жылдамдық υ₀: <b id="v0v"></b> м/с<br><input type="range" id="v0" min="-4" max="4" value="0" step="0.5"></div>
+      <div>Еркін түсу үдеуі g: <select id="gs"><option value="10">10 м/с²</option><option value="9.8">9,8 м/с²</option></select><br><br>
+        <label><input type="checkbox" id="comp" checked> mg күшін құраушыларға жіктеу</label></div>
+    </div>
+    <div style="margin-top:12px">
+      <b style="font-size:14px">Дайын мысалдар:</b>
+      <button class="sec" data-pre="1">Тыныштықтағы дене (N = mg)</button>
+      <button class="sec" data-pre="4">Горизонталь тарту</button>
+      <button class="sec" data-pre="5">Бірқалыпты қозғалыс (ΣF = 0)</button>
+      <button class="sec" data-pre="2">Көлбеуден сырғанау (үйкеліссіз)</button>
+      <button class="sec" data-pre="3">Көлбеуден сырғанау (үйкеліспен)</button>
+      <button class="sec" data-pre="6">Көлбеуде тыныштық</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Күштерді қосу және есептеу</h3>
+    <div class="two">
+      <div><canvas id="pg" width="420" height="320" style="background:#fafcff"></canvas>
+        <p class="hint">Күштер бірінің ұшына бірі жалғанады: mg → N → F → Fүйк. Басынан соңына жүргізілген қызыл штрихты көрсеткі — қорытқы күш ΣF.</p></div>
+      <div class="formula" id="expl"></div>
+    </div>
+  </div>
+
+  <div class="card pred">
+    <h3>Өзіңді тексер</h3>
+    <div class="task" id="task">«Жаңа тапсырма» батырмасын басыңыз.</div>
+    <p class="hint">Тапсырма кезінде сандық жауаптар жасырылады. Параметрлер симуляторға автоматты қойылады, көрсеткілер бағытын көріп, өзің есепте. Дене бастапқыда тыныштықта (υ₀ = 0).</p>
+    <div class="row">N = <input type="text" id="pN"> Н <span class="mk" id="mN"></span></div>
+    <div class="row">a = <input type="text" id="pA"> м/с² <span class="mk" id="mA"></span> <span class="hint">(жоғары бағыт оң; дене қозғалмаса a = 0)</span></div>
+    <button id="pchk" class="green">Тексеру</button>
+    <button id="pnew" class="sec">Жаңа тапсырма</button>
+    <div id="pmsg" style="font-weight:bold;margin-top:6px"></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const D2R = Math.PI / 180;
+const nf = n => String(+n.toFixed(2)).replace('.', ',');
+const cv = $('cv'), ctx = cv.getContext('2d');
+const pg = $('pg'), px = pg.getContext('2d');
+const SC = 55, LEN = 10, BX = 110, BY = 505, SMIN = 0.45, SMAX = 9.55;
+
+let s = 5, v = 0, t = 0, running = false, last = 0, hideAns = false, lastInfo = '';
+
+function P(){
+  return { m: +$('m').value, th: +$('th').value, mu: +$('mu').value, F: +$('F').value,
+           be: +$('be').value, v0: +$('v0').value, g: parseFloat($('gs').value) };
+}
+
+/* ---------- Физика ---------- */
+function dyn(vv){
+  if(vv === undefined) vv = v;
+  const p = P(), th = p.th * D2R, be = p.be * D2R;
+  const W = p.m * p.g;
+  const Fx = p.F * Math.cos(be), Fy = p.F * Math.sin(be);
+  const N = Math.max(0, W * Math.cos(th) - Fy);
+  const fmax = p.mu * N;
+  const s0 = Fx - W * Math.sin(th);          // үйкеліссіз қорытқы (жазықтық бойымен)
+  let f;
+  if(Math.abs(vv) > 1e-4) f = -Math.sign(vv) * fmax;
+  else if(Math.abs(s0) <= fmax) f = -s0;
+  else f = -Math.sign(s0) * fmax;
+  const net = s0 + f;
+  return { p, W, N, fmax, Fx, Fy, s0, f, net, a: net / p.m, th, be };
+}
+
+function simStep(dt){
+  const d = dyn();
+  const vo = v;
+  v += d.a * dt;
+  if(d.p.mu > 0 && Math.abs(vo) > 1e-4 && vo * v <= 0) v = 0;
+  s += v * dt; t += dt;
+  if(s <= SMIN || s >= SMAX){
+    s = Math.max(SMIN, Math.min(SMAX, s)); v = 0; running = false;
+    $('go').textContent = '▶ Бастау';
+    $('stat').textContent = 'Дене жолдың шетіне жетті. «Қайта бастау» батырмасын басыңыз.';
+  }
+}
+
+/* ---------- Сурет салу көмекшілері ---------- */
+function arrow(c, x1, y1, x2, y2, col, w, dash, shadow){
+  if(Math.hypot(x2 - x1, y2 - y1) < 4) return;
+  c.save();
+  if(shadow){ c.shadowColor = 'rgba(0,0,0,.25)'; c.shadowBlur = 5; c.shadowOffsetY = 2; }
+  c.strokeStyle = col; c.fillStyle = col; c.lineWidth = w; c.lineCap = 'round';
+  c.setLineDash(dash || []);
+  const a = Math.atan2(y2 - y1, x2 - x1), h = 10 + w * 2.2;
+  const bx = x2 - h * 0.8 * Math.cos(a), by = y2 - h * 0.8 * Math.sin(a);
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(bx, by); c.stroke();
+  c.setLineDash([]);
+  c.beginPath(); c.moveTo(x2, y2);
+  c.lineTo(x2 - h * Math.cos(a - .42), y2 - h * Math.sin(a - .42));
+  c.lineTo(x2 - h * Math.cos(a + .42), y2 - h * Math.sin(a + .42));
+  c.closePath(); c.fill();
+  c.restore();
+}
+function pillAt(c, text, tx, ty, dx, dy, col){
+  c.save();
+  c.font = 'bold 13px Arial';
+  const w = c.measureText(text).width + 16, h = 22;
+  const rx = Math.abs(dx) > 1e-6 ? w / 2 / Math.abs(dx) : 1e9;
+  const ry = Math.abs(dy) > 1e-6 ? h / 2 / Math.abs(dy) : 1e9;
+  const r = Math.min(rx, ry) + 6;
+  let cx = tx + dx * r, cy = ty + dy * r;
+  const W = c.canvas.width, H = c.canvas.height;
+  cx = Math.max(w / 2 + 4, Math.min(W - w / 2 - 4, cx));
+  cy = Math.max(h / 2 + 4, Math.min(H - h / 2 - 4, cy));
+  const x0 = cx - w / 2, y0 = cy - h / 2, rr = 11;
+  c.fillStyle = col;
+  c.beginPath();
+  c.moveTo(x0 + rr, y0); c.lineTo(x0 + w - rr, y0); c.arc(x0 + w - rr, y0 + rr, rr, -Math.PI / 2, Math.PI / 2);
+  c.lineTo(x0 + rr, y0 + h); c.arc(x0 + rr, y0 + rr, rr, Math.PI / 2, Math.PI * 1.5);
+  c.closePath(); c.fill();
+  c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText(text, cx, cy + 1);
+  c.restore();
+}
+
+/* ---------- Негізгі сахна ---------- */
+function drawScene(){
+  const d = dyn(), p = d.p;
+  const W = cv.width, H = cv.height;
+  const th = d.th, cs = Math.cos(th), sn = Math.sin(th);
+  const u = [cs, -sn], n = [-sn, -cs];                    // экрандағы бағыттар: жазықтық бойымен және перпендикуляр
+  const scr = (a, b) => [a * u[0] + b * n[0], a * u[1] + b * n[1]];
+
+  ctx.clearRect(0, 0, W, H);
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#f7fbff'); bg.addColorStop(1, '#e4eef7');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  // жер
+  ctx.fillStyle = '#cfd8df'; ctx.fillRect(0, BY, W, H - BY);
+  ctx.strokeStyle = '#8895a1'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0, BY); ctx.lineTo(W, BY); ctx.stroke();
+
+  // көлбеу жазықтық
+  const ex = BX + LEN * SC * cs, ey = BY - LEN * SC * sn;
+  if(p.th > 0){
+    ctx.fillStyle = '#b7c3cd';
+    ctx.beginPath(); ctx.moveTo(BX, BY); ctx.lineTo(ex, ey); ctx.lineTo(ex, BY); ctx.closePath(); ctx.fill();
+  } else {
+    ctx.fillStyle = '#b7c3cd'; ctx.fillRect(BX, BY, LEN * SC, 8);
+  }
+  ctx.strokeStyle = '#5d6d7a'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(BX, BY); ctx.lineTo(ex, ey); ctx.stroke();
+  ctx.lineWidth = 1.5; ctx.strokeStyle = '#7d8c99';
+  for(let k = 0; k <= LEN; k++){
+    const bx0 = BX + k * SC * cs, by0 = BY - k * SC * sn;
+    ctx.beginPath(); ctx.moveTo(bx0, by0); ctx.lineTo(bx0 - n[0] * 10, by0 - n[1] * 10); ctx.stroke();
+  }
+  // θ бұрышы
+  if(p.th > 0){
+    ctx.strokeStyle = '#334'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(BX, BY); ctx.lineTo(BX + 110, BY); ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(BX, BY, 70, -th, 0); ctx.stroke();
+    ctx.fillStyle = '#334'; ctx.font = 'bold 14px Arial';
+    ctx.fillText('θ = ' + p.th + '°', BX + 78, BY - 12);
+  }
+
+  // дене
+  const side = 44 + p.m * 3, half = side / 2;
+  const C = [BX + u[0] * s * SC + n[0] * half, BY + u[1] * s * SC + n[1] * half];
+  ctx.save();
+  ctx.translate(C[0], C[1]); ctx.rotate(-th);
+  const gb = ctx.createLinearGradient(-half, -half, half, half);
+  gb.addColorStop(0, '#f8b878'); gb.addColorStop(1, '#e07b1d');
+  ctx.fillStyle = gb; ctx.fillRect(-half, -half, side, side);
+  ctx.strokeStyle = '#a04f00'; ctx.lineWidth = 2; ctx.strokeRect(-half, -half, side, side);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 15px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(p.m + ' кг', 0, 1);
+  ctx.restore();
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+
+  // масштаб
+  const mags = [d.W, d.N, p.F, Math.abs(d.f)];
+  const FS = 190 / Math.max(Math.max.apply(null, mags), 15);
+
+  function force(vecPx, col, label, lw){
+    const L = Math.hypot(vecPx[0], vecPx[1]);
+    if(L < 6) return;
+    const tx = C[0] + vecPx[0], ty = C[1] + vecPx[1];
+    arrow(ctx, C[0], C[1], tx, ty, col, lw || 5, null, true);
+    pillAt(ctx, label, tx, ty, vecPx[0] / L, vecPx[1] / L, col);
+  }
+
+  // құраушылар
+  if($('comp').checked && p.th > 0){
+    const a1 = scr(-d.W * Math.sin(th) * FS, 0), a2 = scr(0, -d.W * Math.cos(th) * FS);
+    [[a1, 'mg·sinθ = ' + nf(d.W * Math.sin(th)) + ' Н'], [a2, 'mg·cosθ = ' + nf(d.W * Math.cos(th)) + ' Н']].forEach(q => {
+      const L = Math.hypot(q[0][0], q[0][1]);
+      const tx = C[0] + q[0][0], ty = C[1] + q[0][1];
+      arrow(ctx, C[0], C[1], tx, ty, '#e59866', 3, [7, 5], false);
+      pillAt(ctx, q[1], tx, ty, q[0][0] / L, q[0][1] / L, '#e59866');
+    });
+  }
+
+  // негізгі күштер
+  force([0, d.W * FS], '#d35400', 'mg = ' + nf(d.W) + ' Н', 6);
+  force(scr(0, d.N * FS), '#8e44ad', hideAns ? 'N' : 'N = ' + nf(d.N) + ' Н', 6);
+  force(scr(d.Fx * FS, d.Fy * FS), '#1f77b4', 'F = ' + nf(p.F) + ' Н', 5);
+  force(scr(d.f * FS, 0), '#8d5524', hideAns ? 'Fүйк' : 'Fүйк = ' + nf(Math.abs(d.f)) + ' Н', 5);
+
+  // үдеу
+  if(!hideAns && Math.abs(d.a) > 0.01){
+    const sg = Math.sign(d.a);
+    const A0 = [C[0] + n[0] * (half + 26), C[1] + n[1] * (half + 26)];
+    const len = Math.max(36, Math.min(170, Math.abs(d.a) * 16));
+    const A1 = [A0[0] + sg * u[0] * len, A0[1] + sg * u[1] * len];
+    arrow(ctx, A0[0], A0[1], A1[0], A1[1], '#1e8449', 4, [9, 6], false);
+    pillAt(ctx, 'a = ' + nf(Math.abs(d.a)) + ' м/с²', A1[0], A1[1], sg * u[0], sg * u[1], '#1e8449');
+  }
+
+  // осьтер
+  const ax = 800, ay = 130;
+  arrow(ctx, ax, ay, ax + u[0] * 70, ay + u[1] * 70, '#556', 2.5, null, false);
+  arrow(ctx, ax, ay, ax + n[0] * 70, ay + n[1] * 70, '#556', 2.5, null, false);
+  ctx.fillStyle = '#334'; ctx.font = 'bold 14px Arial';
+  ctx.fillText('x (жазықтық бойымен)', ax + u[0] * 76 - 70, ay + u[1] * 76 - 6);
+  ctx.fillText('y', ax + n[0] * 80 - 4, ay + n[1] * 80 - 2);
+
+  // көрсеткіштер
+  $('rN').textContent = hideAns ? '?' : nf(d.N) + ' Н';
+  $('rS').textContent = hideAns ? '?' : nf(Math.abs(d.net)) + ' Н';
+  $('rA').textContent = hideAns ? '?' : nf(d.a) + ' м/с²';
+  $('rV').textContent = nf(v) + ' м/с';
+  $('rD').textContent = nf(s) + ' м';
+  $('rT').textContent = nf(t) + ' с';
+}
+
+/* ---------- Күштерді қосу көпбұрышы ---------- */
+function drawPolygon(){
+  const d = dyn(), p = d.p, th = d.th;
+  const W = pg.width, H = pg.height;
+  px.clearRect(0, 0, W, H);
+  if(hideAns){
+    px.fillStyle = '#7a8a98'; px.font = '14px Arial';
+    px.fillText('Тапсырма режимі: көпбұрыш жасырылған', 60, H / 2);
+    return;
+  }
+  const uw = [Math.cos(th), Math.sin(th)], nw = [-Math.sin(th), Math.cos(th)];
+  const list = [
+    { v: [0, -d.W], col: '#d35400', nm: 'mg' },
+    { v: [d.N * nw[0], d.N * nw[1]], col: '#8e44ad', nm: 'N' },
+    { v: [d.Fx * uw[0] + d.Fy * nw[0], d.Fx * uw[1] + d.Fy * nw[1]], col: '#1f77b4', nm: 'F' },
+    { v: [d.f * uw[0], d.f * uw[1]], col: '#8d5524', nm: 'Fүйк' }
+  ].filter(q => Math.hypot(q.v[0], q.v[1]) > 0.01);
+  const pts = [[0, 0]];
+  list.forEach(q => { const a = pts[pts.length - 1]; pts.push([a[0] + q.v[0], a[1] + q.v[1]]); });
+  const xs = pts.map(a => a[0]), ys = pts.map(a => a[1]);
+  const minx = Math.min.apply(null, xs.concat(0)), maxx = Math.max.apply(null, xs.concat(0));
+  const miny = Math.min.apply(null, ys.concat(0)), maxy = Math.max.apply(null, ys.concat(0));
+  const rx = Math.max(maxx - minx, 1), ry = Math.max(maxy - miny, 1);
+  const sc = Math.min((W - 110) / rx, (H - 80) / ry, 14);
+  const ox = (W - rx * sc) / 2 - minx * sc, oy = (H + ry * sc) / 2 + miny * sc;
+  const Q = a => [ox + a[0] * sc, oy - a[1] * sc];
+  list.forEach((q, i) => {
+    const a = Q(pts[i]), b = Q(pts[i + 1]);
+    arrow(px, a[0], a[1], b[0], b[1], q.col, 4, null, false);
+    px.fillStyle = q.col; px.font = 'bold 13px Arial';
+    px.fillText(q.nm, (a[0] + b[0]) / 2 + 8, (a[1] + b[1]) / 2 - 6);
+  });
+  const end = pts[pts.length - 1];
+  if(Math.hypot(end[0], end[1]) > 0.01){
+    const a = Q([0, 0]), b = Q(end);
+    arrow(px, a[0], a[1], b[0], b[1], '#c0392b', 5, [9, 5], false);
+    px.fillStyle = '#c0392b'; px.font = 'bold 14px Arial';
+    px.fillText('ΣF = ' + nf(Math.abs(d.net)) + ' Н', (a[0] + b[0]) / 2 + 10, (a[1] + b[1]) / 2 + 20);
+  } else {
+    px.fillStyle = '#c0392b'; px.font = 'bold 15px Arial';
+    px.fillText('Көпбұрыш тұйықталды: ΣF = 0', 60, 30);
+  }
+}
+
+/* ---------- Есептеу мәтіні ---------- */
+function updateInfo(){
+  const d = dyn(), p = d.p;
+  let h;
+  if(hideAns){
+    h = 'Тапсырма режимі: есептеу жасырылған. Жауапты өзің есепте, сосын «Тексеру» батырмасын бас.';
+  } else {
+    h = '<b>1) Жазықтыққа перпендикуляр бағытта</b> дене үдемейді:<br>N + F·sinβ − mg·cosθ = 0<br>' +
+        'N = ' + nf(p.m) + '·' + nf(p.g) + '·cos' + p.th + '° − ' + nf(p.F) + '·sin' + p.be + '° = <b>' + nf(d.N) + ' Н</b><br><br>' +
+        '<b>2) Жазықтық бойымен</b> (жоғары бағыт оң):<br>m·a = F·cosβ − mg·sinθ − F<sub>үйк</sub><br>' +
+        'F·cosβ − mg·sinθ = ' + nf(d.s0) + ' Н<br>';
+    if(Math.abs(v) > 1e-4){
+      h += 'Дене қозғалыста: F<sub>үйк</sub> = μ·N = ' + nf(p.mu) + '·' + nf(d.N) + ' = ' + nf(d.fmax) + ' Н (қозғалысқа қарсы).<br>';
+    } else if(Math.abs(d.s0) <= d.fmax){
+      h += 'Ең үлкен үйкеліс μN = ' + nf(d.fmax) + ' Н ≥ ' + nf(Math.abs(d.s0)) + ' Н, сондықтан тыныштық үйкелісі күшті теңестіреді, дене қозғалмайды.<br>';
+    } else {
+      h += 'Сырғанау басталады: F<sub>үйк</sub> = μ·N = ' + nf(p.mu) + '·' + nf(d.N) + ' = ' + nf(d.fmax) + ' Н.<br>';
+    }
+    h += 'ΣF = ' + nf(d.s0) + ' + (' + nf(d.f) + ') = <b>' + nf(d.net) + ' Н</b><br>' +
+         '<big>a = ΣF / m = ' + nf(d.net) + ' / ' + nf(p.m) + ' = ' + nf(d.a) + ' м/с²</big><br>' +
+         (Math.abs(d.a) < 0.005 ? 'ΣF = 0, дене тыныштықта немесе бірқалыпты қозғалады.' :
+          (d.a > 0 ? 'Үдеу жазықтық бойымен жоғары бағытталған.' : 'Үдеу жазықтық бойымен төмен бағытталған.'));
+  }
+  if(h !== lastInfo){ lastInfo = h; $('expl').innerHTML = h; }
+}
+
+/* ---------- Цикл ---------- */
+function frame(now){
+  if(running){
+    let dt = (now - last) / 1000; last = now;
+    if(dt > 0.05) dt = 0.05;
+    for(let i = 0; i < 5 && running; i++) simStep(dt / 5);
+  }
+  drawScene(); drawPolygon(); updateInfo();
+  requestAnimationFrame(frame);
+}
+
+function syncLabels(){
+  $('mv').textContent = $('m').value;
+  $('thv').textContent = $('th').value;
+  $('muv').textContent = nf(+$('mu').value);
+  $('Fv').textContent = $('F').value;
+  $('bev').textContent = $('be').value;
+  $('v0v').textContent = nf(+$('v0').value);
+}
+['m','th','mu','F','be','v0'].forEach(id => $(id).oninput = () => { syncLabels(); if(id === 'v0') resetSim(); });
+$('gs').onchange = () => {};
+
+$('go').onclick = () => {
+  if(s <= SMIN + 1e-9 || s >= SMAX - 1e-9) resetSim();
+  running = !running;
+  $('go').textContent = running ? '⏸ Тоқтату' : '▶ Жалғастыру';
+  if(running){ last = performance.now(); $('stat').textContent = ''; }
+};
+function resetSim(){
+  running = false; s = 5; v = +$('v0').value; t = 0;
+  $('go').textContent = '▶ Бастау'; $('stat').textContent = '';
+}
+$('reset').onclick = resetSim;
+
+/* ---------- Дайын мысалдар ---------- */
+const presets = {
+  1: { m: 4, th: 0,  mu: 0.2, F: 0,  be: 0, v0: 0, g: '10' },
+  2: { m: 4, th: 30, mu: 0,   F: 0,  be: 0, v0: 0, g: '10' },
+  3: { m: 4, th: 30, mu: 0.2, F: 0,  be: 0, v0: 0, g: '10' },
+  4: { m: 4, th: 0,  mu: 0.2, F: 20, be: 0, v0: 0, g: '10' },
+  5: { m: 5, th: 0,  mu: 0.2, F: 10, be: 0, v0: 2, g: '10' },
+  6: { m: 4, th: 30, mu: 0.6, F: 0,  be: 0, v0: 0, g: '10' }
+};
+document.querySelectorAll('[data-pre]').forEach(b => b.onclick = () => {
+  const q = presets[b.dataset.pre];
+  ['m','th','mu','F','be','v0'].forEach(k => $(k).value = q[k]);
+  $('gs').value = q.g; hideAns = false;
+  syncLabels(); resetSim(); clearPred();
+  $('task').textContent = '«Жаңа тапсырма» батырмасын басыңыз.';
+});
+
+/* ---------- Өзіңді тексер ---------- */
+function num(id){ return parseFloat($(id).value.replace(',', '.')); }
+function setMk(id, ok){ const e = $(id); e.textContent = ok ? '✓' : '✗'; e.className = 'mk ' + (ok ? 'ok' : 'bad'); }
+function clearPred(){ ['mN','mA'].forEach(i => { $(i).textContent = ''; $(i).className = 'mk'; }); $('pmsg').textContent = ''; }
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+$('pnew').onclick = () => {
+  const q = { m: pick([2,4,5,10]), th: pick([0,30,30,45]), mu: pick([0,0.1,0.2,0.3]), F: pick([0,10,20,30,40]) };
+  ['m','th','mu','F'].forEach(k => $(k).value = q[k]);
+  $('be').value = 0; $('v0').value = 0; $('gs').value = '10';
+  hideAns = true; syncLabels(); resetSim(); clearPred();
+  ['pN','pA'].forEach(i => $(i).value = '');
+  $('task').innerHTML = 'Массасы <b>' + q.m + ' кг</b> дене ' +
+    (q.th === 0 ? '<b>горизонталь</b> жазықтықта' : '<b>' + q.th + '°</b> көлбеу жазықтықта') + ' тыныштықта тұр. ' +
+    (q.F > 0 ? 'Жазықтық бойымен жоғары <b>' + q.F + ' Н</b> күш әсер етеді. ' : 'Тарту күші жоқ. ') +
+    'Үйкеліс коэффициенті μ = <b>' + nf(q.mu) + '</b>, g = 10 м/с². Реакция күші N мен дененің үдеуі a неге тең? (cos30° = 0,866; cos45° = sin45° = 0,707; sin30° = 0,5)';
+};
+$('pchk').onclick = () => {
+  clearPred();
+  const d = dyn(0), msg = $('pmsg');
+  const pN = num('pN'), pA = num('pA');
+  if(isNaN(pN) || isNaN(pA)){ msg.className = 'bad'; msg.textContent = 'N және a өрістерін толтырыңыз.'; return; }
+  const okN = Math.abs(pN - d.N) <= Math.max(0.02 * d.N, 0.3);
+  const okA = Math.abs(pA - d.a) <= Math.max(0.02 * Math.abs(d.a), 0.1);
+  setMk('mN', okN); setMk('mA', okA);
+  if(okN && okA){
+    hideAns = false;
+    msg.className = 'ok'; msg.textContent = 'Дұрыс! Жарайсың 👏 Енді «Бастау» батырмасын басып, тексеріп көр.';
+  } else {
+    msg.className = 'bad'; msg.textContent = '✗ белгіленген жауапты қайта есептеп көр.';
+  }
+};
+
+syncLabels(); resetSim();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
